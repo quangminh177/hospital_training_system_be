@@ -1,0 +1,392 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    Int                    @id @default(autoincrement())
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  email                 String                 @unique
+  hash                  String?
+  firstName             String?
+  lastName              String?
+  role                  Role   ?               @default(USER)
+  job                   Job?                    
+  phone                 String?                @unique
+  dob                   DateTime?
+  image                 String?
+  gender                Gender?
+  departmentId          Int?
+  isDeleted             Boolean?                @default(false)
+  hashedRt              String?
+  assignmentSubmissions AssignmentSubmission[]
+  classUsers            ClassUser[]
+  quizAttempts          QuizAttempt[]
+  topicGrades           TopicGrade[]
+  department            Department?             @relation(fields: [departmentId], references: [id])
+  curriculumDetails     CurriculumDetail[]
+
+  @@map("users")
+}
+
+enum Job {
+  Doctor
+  Nurse
+  Intern
+}
+
+model Class {
+  id              Int           @id @default(autoincrement())
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  isDeleted       Boolean       @default(false)
+  courseId        Int
+  className       String
+  startDate       DateTime
+  endDate         DateTime
+  minQuantity     Int
+  maxQuantity     Int
+  allowedRegister Boolean
+  quantity        Int?
+  status          StatusClass?   @default(AWAITING_APPROVAL)
+  curriculumId    Int
+  classUsers      ClassUser[]
+  course          Course        @relation(fields: [courseId], references: [id])
+  schedules       Schedule[]
+  curriculum      Curriculum    @relation(fields: [curriculumId], references: [id])
+
+  @@map("classes")
+}
+
+enum DayInWeek {
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+  Sunday
+}
+
+model Schedule {
+  id              Int           @id @default(autoincrement())
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  isDeleted       Boolean       @default(false)
+  classId         Int
+  class           Class         @relation(fields: [classId], references: [id])
+  schedule        DayInWeek 
+  startTime       String
+  endTime         String
+
+  @@map("schedules")
+}
+
+model ClassUser {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  isDeleted  Boolean  @default(false)
+  classId    Int
+  userId     Int
+  isTrainer  Boolean  @default(false)
+  finalGrade Decimal?
+  class      Class    @relation(fields: [classId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@map("class_user")
+}
+
+model Department {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isDeleted   Boolean  @default(false)
+  name        String
+  description String?
+  staff       User[]
+  courses     Course[]
+
+  @@map("departments")
+}
+
+model Course {
+  id                   Int                   @id @default(autoincrement())
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  isDeleted            Boolean               @default(false)
+  departmentId         Int
+  courseName           String
+  description          String?
+  credit               Decimal?
+  totalSession         Int?
+  classes              Class[]
+  topics               Topic[]
+  department           Department           @relation(fields: [departmentId], references: [id])
+
+  @@map("courses")
+}
+
+model Curriculum {
+  id                   Int                   @id @default(autoincrement())
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  isDeleted            Boolean               @default(false)
+  curriculumName       String
+  description          String?
+  duration             String
+  classes              Class[]
+  curriculumDetails    CurriculumDetail[]
+
+  @@map("curriculums")
+}
+
+model CurriculumDetail {
+  id                   Int                   @id @default(autoincrement())
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  isDeleted            Boolean               @default(false)
+  curriculumId         Int
+  userId               Int
+  curriculum           Curriculum            @relation(fields: [curriculumId], references: [id])
+  user                 User                  @relation(fields: [userId], references: [id])
+
+  @@map("curriculum_detail")
+}
+
+model Topic {
+  id                Int                @id @default(autoincrement())
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  isDeleted         Boolean            @default(false)
+  courseId          Int
+  topicName         String
+  topicNo           Int                @default(autoincrement())
+  description       String?
+  topicWeight       Decimal
+  quizWeight        Decimal
+  assignmentWeight  Decimal
+  assignments       Assignment[]
+  externalResources ExternalResource[]
+  questions         Question[]
+  topicGrades       TopicGrade[]
+  course            Course             @relation(fields: [courseId], references: [id])
+
+  @@map("topics")
+}
+
+model TopicGrade {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isDeleted   Boolean  @default(false)
+  topicId     Int
+  userId      Int
+  grade       Decimal?
+  description String?
+  topic       Topic    @relation(fields: [topicId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@map("topic_grade")
+}
+
+model ExternalResource {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isDeleted   Boolean
+  topicId     Int
+  externalUrl String?
+  name        String
+  description String
+  format      Format
+  topic       Topic    @relation(fields: [topicId], references: [id])
+
+  @@map("external_resources")
+}
+
+model Assignment {
+  id                    Int                    @id @default(autoincrement())
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  topicId               Int
+  name                  String
+  description           String
+  instruction           String
+  weight                Decimal
+  startAt               DateTime
+  endAt                 DateTime
+  dueAt                 DateTime
+  isExpired             Boolean                @default(false)
+  assignmentSubmissions AssignmentSubmission[]
+  topic                 Topic                  @relation(fields: [topicId], references: [id])
+  attachments           Attachment[]
+
+  @@map("assignments")
+}
+
+model Attachment {
+  id                     Int                  @id @default(autoincrement())
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
+  isDeleted              Boolean
+  assignmentId           Int
+  assignmentSubmissionId Int
+  name                   String
+  description            String
+  format                 Format
+  url                    String?
+  assignment             Assignment           @relation(fields: [assignmentId], references: [id])
+  assignmentSubmission   AssignmentSubmission @relation(fields: [assignmentSubmissionId], references: [id])
+
+  @@map("attachments")
+}
+
+model AssignmentSubmission {
+  id                         Int                        @id @default(autoincrement())
+  createdAt                  DateTime                   @default(now())
+  updatedAt                  DateTime                   @updatedAt
+  isDeleted                  Boolean
+  assignmentId               Int
+  userId                     Int
+  grade                      Decimal
+  assignmentSubmissionStatus AssignmentSubmissionStatus
+  assignment                 Assignment                 @relation(fields: [assignmentId], references: [id])
+  user                       User                       @relation(fields: [userId], references: [id])
+  attachments                Attachment[]
+
+  @@map("assignment_submission")
+}
+
+model Question {
+  id                   Int                 @id @default(autoincrement())
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  isDeleted            Boolean
+  topicId              Int
+  questionName         String
+  image                String
+  answers              Answer[]
+  topic                Topic               @relation(fields: [topicId], references: [id])
+  quiz_attempt_details QuizAttemptDetail[]
+  quiz_details         QuizDetail[]
+
+  @@map("questions")
+}
+
+model Answer {
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  isDeleted    Boolean
+  questionId   Int
+  answerName   String
+  isCorrect    Boolean
+  defaultOrder Int
+  image        String
+  question     Question @relation(fields: [questionId], references: [id])
+
+  @@map("answers")
+}
+
+model Quiz {
+  id           Int           @id @default(autoincrement())
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  isDeleted    Boolean
+  quizName     String
+  timeLimit    String
+  weight       Decimal
+  startAt      DateTime
+  endAt        DateTime
+  quizAttempts QuizAttempt[]
+  quizDetails  QuizDetail[]
+
+  @@map("quizzes")
+}
+
+model QuizDetail {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  isDeleted  Boolean
+  questionId Int
+  quizId     Int
+  question   Question @relation(fields: [questionId], references: [id])
+  quiz       Quiz     @relation(fields: [quizId], references: [id])
+
+  @@map("quiz_detail")
+}
+
+model QuizAttempt {
+  id                 Int                 @id @default(autoincrement())
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  isDeleted          Boolean
+  userId             Int
+  quizId             Int
+  grade              Decimal
+  startAt            DateTime
+  endAt              DateTime
+  quiz               Quiz                @relation(fields: [quizId], references: [id])
+  user               User                @relation(fields: [userId], references: [id])
+  quizAttemptDetails QuizAttemptDetail[]
+
+  @@map("quiz_attempt")
+}
+
+model QuizAttemptDetail {
+  id            Int         @id @default(autoincrement())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  isDeleted     Boolean
+  questionId    Int
+  quizAttemptId Int
+  questionNo    Int
+  chosenAnswer  String
+  orderOfAnswer String
+  question      Question    @relation(fields: [questionId], references: [id])
+  quizAttempt   QuizAttempt @relation(fields: [quizAttemptId], references: [id])
+
+  @@map("quiz_attempt_detail")
+}
+
+enum Role {
+  ADMIN
+  UPPER
+  USER
+}
+
+enum Gender {
+  Male
+  Female
+}
+
+enum StatusClass {
+  AWAITING_APPROVAL
+  OPENING_REGISTER
+  COMING_SOON
+  ON_GOING
+  CLOSED
+  REJECTED
+}
+
+enum Format {
+  Word
+  PDF
+  Powerpoint
+  Excel
+  Image
+  Link
+}
+
+enum AssignmentSubmissionStatus {
+  AVAILABLE_SUBMIT
+  SUBMIT_AFTER_DEADLINE
+  EXPIRED
+}
