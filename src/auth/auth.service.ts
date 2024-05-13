@@ -138,4 +138,32 @@ export class AuthService {
       refresh_token: rt,
     };
   }
+
+  async getAuthenticatedUser(email: string, password: string) {
+    //find the user by email
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+    });
+    //if user does not exist throw exception
+    if (!user) throw new ForbiddenException('Access Denied');
+    //compare password
+    const pwMatches = await argon.verify(user.hash, password);
+    //if password incorrect throw exception
+    if (!pwMatches) throw new ForbiddenException('Access Denied');
+    return user;
+  }
+
+  async getUserByEmail(email: string) {
+    //find the user by email
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+    });
+    //if user does not exist throw exception
+    if (!user) throw new ForbiddenException('Access Denied');
+    return user;
+  }
 }

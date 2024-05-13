@@ -16,8 +16,10 @@ import { UserService } from './user.service';
 import { EditUserDto } from './dto';
 import { Tokens } from 'src/auth/types';
 import { CreateUserDto } from './dto/create-user.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('user')
+@ApiTags('user')
 export class UserController {
   constructor(private userService: UserService) {}
 
@@ -33,7 +35,6 @@ export class UserController {
     return this.userService.editProfile(userId, dto);
   }
 
-  @Public()
   @HttpCode(HttpStatus.OK)
   @Get()
   getUsers() {
@@ -47,14 +48,12 @@ export class UserController {
     return this.userService.getUserById(userId);
   }
 
-  @Public()
   @HttpCode(HttpStatus.CREATED)
   @Post('createUser')
   createUser(@Body() dto: CreateUserDto): Promise<Tokens> {
     return this.userService.createUser(dto);
   }
 
-  @Public()
   @HttpCode(HttpStatus.OK)
   @Patch('editUser/:id')
   editUserById(
@@ -64,7 +63,6 @@ export class UserController {
     return this.userService.editUserById(userId, dto);
   }
 
-  @Public()
   @HttpCode(HttpStatus.OK)
   @Delete('deleteUser/:id')
   deleteUserById(@Param('id', ParseIntPipe) userId: number) {

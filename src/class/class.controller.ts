@@ -14,14 +14,18 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ClassService } from './class.service';
-import { Public } from 'src/common/decorators';
 import { CreateClassDto, CreateClassWithExcelDto, EditClassDto } from './dto';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { Public } from 'src/common/decorators';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('class')
+@ApiTags('class')
 export class ClassController {
   constructor(private classService: ClassService) {}
 
   //Get All Classes
+  @Roles('ADMIN', 'UPPER')
   @Public()
   @HttpCode(HttpStatus.OK)
   @Get('')

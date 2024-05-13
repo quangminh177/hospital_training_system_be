@@ -1,65 +1,66 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateCourseDto, EditCourseDto } from './dto';
+import { CreateTopicDto, EditTopicDto } from './dto';
 
 @Injectable()
-export class CourseService {
+export class TopicService {
   constructor(private prisma: PrismaService) {}
 
-  //Get all Course
-  async getAllCourse() {
+  //Get Topic by CourseId
+  async getTopicByCourseId(courseId) {
     try {
-      const allCourses = this.prisma.course.findMany({
+      const allTopics = this.prisma.topic.findMany({
         where: {
           isDeleted: false,
+          courseId: courseId,
         },
       });
 
-      return allCourses;
+      return allTopics;
     } catch (error) {
       throw error;
     }
   }
 
-  //Get Course by Id
-  async getCourseById(courseId: number) {
+  //Get Topic by Id
+  async getTopicById(topicId: number) {
     try {
-      const course = await this.prisma.course.findUnique({
+      const topic = await this.prisma.topic.findUnique({
         where: {
-          id: courseId,
+          id: topicId,
           isDeleted: false,
         },
       });
 
-      return course;
+      return topic;
     } catch (error) {
       throw error;
     }
   }
 
-  //Create Course
-  async createCourse(dto: CreateCourseDto) {
+  //Create Topic
+  async createTopic(dto: CreateTopicDto) {
     try {
-      // Create new Course
-      const newCourse = await this.prisma.course.create({
+      // Create new Topic
+      const newTopic = await this.prisma.topic.create({
         data: {
           ...dto,
         },
       });
 
-      return newCourse;
+      return newTopic;
     } catch (error) {
       throw error;
     }
   }
 
-  //Edit Course by Id
-  async editCourseById(courseId: number, dto: EditCourseDto) {
+  //Edit Topic by Id
+  async editTopicById(topicId: number, dto: EditTopicDto) {
     try {
-      //Update Course
-      await this.prisma.course.update({
+      //Update Topic
+      await this.prisma.topic.update({
         where: {
-          id: courseId,
+          id: topicId,
         },
         data: {
           ...dto,
@@ -72,12 +73,12 @@ export class CourseService {
     }
   }
 
-  //Delete Course By Id
-  async deleteCourseById(courseId: number) {
+  //Delete Topic By Id
+  async deleteTopicById(topicId: number) {
     try {
-      await this.prisma.course.update({
+      await this.prisma.topic.update({
         where: {
-          id: courseId,
+          id: topicId,
         },
         data: {
           isDeleted: true,

@@ -11,15 +11,15 @@ import {
   Post,
 } from '@nestjs/common';
 import { CourseService } from './course.service';
-import { Public } from 'src/common/decorators';
 import { CreateCourseDto, EditCourseDto } from './dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('course')
+@ApiTags('course')
 export class CourseController {
   constructor(private courseService: CourseService) {}
 
   //Get All Courses
-  @Public()
   @HttpCode(HttpStatus.OK)
   @Get('')
   getAllCourse() {
@@ -27,15 +27,13 @@ export class CourseController {
   }
 
   //Get Course By Id
-  @Public()
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
-  getClassById(@Param('id', ParseIntPipe) courseId: number) {
+  getCourseById(@Param('id', ParseIntPipe) courseId: number) {
     return this.courseService.getCourseById(courseId);
   }
 
   //Create Course
-  @Public()
   @HttpCode(HttpStatus.CREATED)
   @Post('createCourse')
   async createCourse(@Body() dto: CreateCourseDto) {
@@ -43,10 +41,9 @@ export class CourseController {
   }
 
   //Edit Course by Id
-  @Public()
   @HttpCode(HttpStatus.OK)
   @Patch('editCourse/:id')
-  editClassById(
+  editCourseById(
     @Param('id', ParseIntPipe) courseId: number,
     @Body() dto: EditCourseDto,
   ) {
@@ -54,10 +51,9 @@ export class CourseController {
   }
 
   //Delete Course by Id
-  @Public()
   @HttpCode(HttpStatus.OK)
   @Delete('deleteCourse/:id')
-  deleteClassById(@Param('id', ParseIntPipe) courseId: number) {
+  deleteCourseById(@Param('id', ParseIntPipe) courseId: number) {
     return this.courseService.deleteCourseById(courseId);
   }
 }

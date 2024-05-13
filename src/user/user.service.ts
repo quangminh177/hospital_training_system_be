@@ -13,68 +13,92 @@ export class UserService {
   ) {}
 
   async getUsers() {
-    const users = await this.prisma.user.findMany();
+    try {
+      const users = await this.prisma.user.findMany();
 
-    users.map((user) => delete user.hashedRt);
-    return users;
+      users.map((user) => delete user.hashedRt);
+      return users;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async getUserById(userId: number) {
-    const user = await this.prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-    });
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+      });
 
-    delete user.hash;
+      delete user.hash;
 
-    return user;
+      return user;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async createUser(dto: CreateUserDto): Promise<Tokens> {
-    return this.authService.signup(dto);
+    try {
+      return this.authService.signup(dto);
+    } catch (error) {
+      throw error;
+    }
   }
 
   async editProfile(userId: number, dto: EditUserDto) {
-    const user = await this.prisma.user.update({
-      where: {
-        id: userId,
-      },
-      data: {
-        ...dto,
-      },
-    });
+    try {
+      const user = await this.prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          ...dto,
+        },
+      });
 
-    delete user.hash;
+      delete user.hash;
 
-    return true;
+      return true;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async editUserById(userId: number, dto: EditUserDto) {
-    const user = await this.prisma.user.update({
-      where: {
-        id: userId,
-      },
-      data: {
-        ...dto,
-      },
-    });
+    try {
+      const user = await this.prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          ...dto,
+        },
+      });
 
-    delete user.hash;
+      delete user.hash;
 
-    return true;
+      return true;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async deleteUserById(userId: number) {
-    await this.prisma.user.update({
-      where: {
-        id: userId,
-      },
-      data: {
-        isDeleted: true,
-      },
-    });
+    try {
+      await this.prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          isDeleted: true,
+        },
+      });
 
-    return true;
+      return true;
+    } catch (error) {
+      throw error;
+    }
   }
 }

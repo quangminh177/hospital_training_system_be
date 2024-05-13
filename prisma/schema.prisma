@@ -166,7 +166,7 @@ model Topic {
   isDeleted         Boolean            @default(false)
   courseId          Int
   topicName         String
-  topicNo           Int                @default(autoincrement())
+  topicNo           Int                
   description       String?
   topicWeight       Decimal
   quizWeight        Decimal
@@ -269,8 +269,9 @@ model Question {
   updatedAt            DateTime            @updatedAt
   isDeleted            Boolean
   topicId              Int
+  level                Level
   questionName         String
-  image                String
+  image                String?
   answers              Answer[]
   topic                Topic               @relation(fields: [topicId], references: [id])
   quiz_attempt_details QuizAttemptDetail[]
@@ -389,4 +390,10 @@ enum AssignmentSubmissionStatus {
   AVAILABLE_SUBMIT
   SUBMIT_AFTER_DEADLINE
   EXPIRED
+}
+
+enum Level {
+  Easy
+  Medium
+  Hard
 }
