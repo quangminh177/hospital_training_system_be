@@ -9,14 +9,17 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { User } from '@prisma/client';
-import { GetCurrentUser, GetCurrentUserId, Public } from '../common/decorators';
+import { GetCurrentUser, GetCurrentUserId } from '../common/decorators';
 import { UserService } from './user.service';
 import { EditUserDto } from './dto';
 import { Tokens } from 'src/auth/types';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { RolesGuard } from 'src/common/guards/roles.guard';
 
 @Controller('user')
 @ApiTags('user')
@@ -35,25 +38,32 @@ export class UserController {
     return this.userService.editProfile(userId, dto);
   }
 
+  @Roles('ADMIN')
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get()
   getUsers() {
     return this.userService.getUsers();
   }
 
-  @Public()
+  @Roles('ADMIN')
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   getUserById(@Param('id', ParseIntPipe) userId: number) {
     return this.userService.getUserById(userId);
   }
 
+  @Roles('ADMIN')
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post('createUser')
   createUser(@Body() dto: CreateUserDto): Promise<Tokens> {
     return this.userService.createUser(dto);
   }
 
+  @Roles('ADMIN')
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Patch('editUser/:id')
   editUserById(
@@ -63,6 +73,8 @@ export class UserController {
     return this.userService.editUserById(userId, dto);
   }
 
+  @Roles('ADMIN')
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Delete('deleteUser/:id')
   deleteUserById(@Param('id', ParseIntPipe) userId: number) {

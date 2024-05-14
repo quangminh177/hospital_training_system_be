@@ -14,10 +14,9 @@ import {
 import { CreateTopicDto, EditTopicDto } from './dto';
 import { TopicService } from './topic.service';
 import { ApiTags } from '@nestjs/swagger';
-import { Public } from 'src/common/decorators';
+// import { Public } from 'src/common/decorators';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { RolesGuard } from 'src/common/guards/roles.guard';
-import { AtGuard } from 'src/common/guards';
 
 @Controller('topic')
 @ApiTags('topic')
@@ -26,9 +25,8 @@ export class TopicController {
 
   //Get Topics By CourseId
   // @Public()
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'UPPER')
   @UseGuards(RolesGuard)
-  @UseGuards(AtGuard)
   @HttpCode(HttpStatus.OK)
   @Get('course/:id')
   getAllTopic(@Param('id', ParseIntPipe) courseId: number) {
@@ -36,7 +34,9 @@ export class TopicController {
   }
 
   //Get Topic By Id
-  @Public()
+  // @Public()
+  @Roles('ADMIN', 'UPPER')
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
   getTopicById(@Param('id', ParseIntPipe) topicId: number) {
@@ -44,7 +44,9 @@ export class TopicController {
   }
 
   //Create Topic
-  @Public()
+  // @Public()
+  @Roles('ADMIN', 'UPPER')
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post('createTopic')
   async createTopic(@Body() dto: CreateTopicDto) {
@@ -52,7 +54,9 @@ export class TopicController {
   }
 
   //Edit Topic by Id
-  @Public()
+  // @Public()
+  @Roles('ADMIN', 'UPPER')
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Patch('editTopic/:id')
   editTopicById(
@@ -63,7 +67,9 @@ export class TopicController {
   }
 
   //Delete Topic by Id
-  @Public()
+  // @Public()
+  @Roles('ADMIN', 'UPPER')
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Delete('deleteTopic/:id')
   deleteTopicById(@Param('id', ParseIntPipe) topicId: number) {

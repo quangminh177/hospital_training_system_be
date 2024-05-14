@@ -29,6 +29,7 @@ export class QuestionController {
   }
 
   //Get Question By Id
+  @Public()
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
   getQuestionById(@Param('id', ParseIntPipe) questionId: number) {
@@ -36,6 +37,7 @@ export class QuestionController {
   }
 
   //Create Question
+  @Public()
   @HttpCode(HttpStatus.CREATED)
   @Post('createQuestion')
   createQuestion(@Body() dto: CreateQuestionDto) {
@@ -43,6 +45,7 @@ export class QuestionController {
   }
 
   //Edit Question by Id
+  @Public()
   @HttpCode(HttpStatus.OK)
   @Patch('editQuestion/:id')
   editQuestionById(
@@ -53,6 +56,7 @@ export class QuestionController {
   }
 
   //Delete Question by Id
+  @Public()
   @HttpCode(HttpStatus.OK)
   @Delete('deleteQuestion/:id')
   deleteQuestionById(@Param('id', ParseIntPipe) questionId: number) {

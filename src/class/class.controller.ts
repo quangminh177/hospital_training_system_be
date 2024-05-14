@@ -10,14 +10,15 @@ import {
   Patch,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ClassService } from './class.service';
 import { CreateClassDto, CreateClassWithExcelDto, EditClassDto } from './dto';
 import { Roles } from 'src/common/decorators/roles.decorator';
-import { Public } from 'src/common/decorators';
 import { ApiTags } from '@nestjs/swagger';
+import { RolesGuard } from 'src/common/guards/roles.guard';
 
 @Controller('class')
 @ApiTags('class')
@@ -26,7 +27,7 @@ export class ClassController {
 
   //Get All Classes
   @Roles('ADMIN', 'UPPER')
-  @Public()
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('')
   getAllClass() {
@@ -34,7 +35,8 @@ export class ClassController {
   }
 
   //Get Class By Id
-  @Public()
+  @Roles('ADMIN', 'UPPER')
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
   getClassById(@Param('id', ParseIntPipe) classId: number) {
@@ -42,7 +44,8 @@ export class ClassController {
   }
 
   //Create Class
-  @Public()
+  @Roles('ADMIN', 'UPPER')
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post('createClass')
   createClass(@Body() dto: CreateClassDto) {
@@ -50,7 +53,8 @@ export class ClassController {
   }
 
   //Create Class With Excel
-  @Public()
+  @Roles('ADMIN', 'UPPER')
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post('createClassWithExcel')
   @UseInterceptors(FileInterceptor('traineesFile'))
@@ -62,7 +66,8 @@ export class ClassController {
   }
 
   //Edit Class by Id
-  @Public()
+  @Roles('UPPER')
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Patch('editClass/:id')
   editClassById(
@@ -73,7 +78,8 @@ export class ClassController {
   }
 
   //Delete Class by Id
-  @Public()
+  @Roles('UPPER')
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Delete('deleteClass/:id')
   deleteClassById(@Param('id', ParseIntPipe) classId: number) {

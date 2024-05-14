@@ -28,6 +28,7 @@ export class AuthService {
           firstName: dto.firstName,
           lastName: dto.lastName,
           role: dto.role,
+          job: dto.job,
           phone: dto.phone,
           dob: dto.dob,
           image: dto.image,

@@ -9,10 +9,13 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { CurriculumService } from './curriculum.service';
 import { CreateCurriculumDto, EditCurriculumDto } from './dto';
 import { ApiTags } from '@nestjs/swagger';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { RolesGuard } from 'src/common/guards/roles.guard';
 
 @Controller('curriculum')
 @ApiTags('curriculum')
@@ -20,6 +23,8 @@ export class CurriculumController {
   constructor(private curriculumService: CurriculumService) {}
 
   //Get All Curriculums
+  @Roles('UPPER')
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('')
   getAllCurriculum() {
@@ -27,6 +32,8 @@ export class CurriculumController {
   }
 
   //Get Curriculum By Id
+  @Roles('UPPER')
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
   getCurriculumById(@Param('id', ParseIntPipe) curriculumId: number) {
@@ -34,6 +41,8 @@ export class CurriculumController {
   }
 
   //Create Curriculum
+  @Roles('UPPER')
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post('createCurriculum')
   async createCurriculum(@Body() dto: CreateCurriculumDto) {
@@ -41,6 +50,8 @@ export class CurriculumController {
   }
 
   //Edit Curriculum by Id
+  @Roles('UPPER')
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Patch('editCurriculum/:id')
   editCurriculumById(
@@ -51,6 +62,8 @@ export class CurriculumController {
   }
 
   //Delete Curriculum by Id
+  @Roles('UPPER')
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Delete('deleteCurriculum/:id')
   deleteCurriculumById(@Param('id', ParseIntPipe) curriculumId: number) {

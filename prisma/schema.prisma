@@ -214,6 +214,7 @@ model Assignment {
   id                    Int                    @id @default(autoincrement())
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
+  isDeleted             Boolean
   topicId               Int
   name                  String
   description           String
@@ -268,12 +269,12 @@ model Question {
   createdAt            DateTime            @default(now())
   updatedAt            DateTime            @updatedAt
   isDeleted            Boolean
-  topicId              Int
   level                Level
   questionName         String
   image                String?
   answers              Answer[]
   topic                Topic               @relation(fields: [topicId], references: [id])
+  topicId              Int
   quiz_attempt_details QuizAttemptDetail[]
   quiz_details         QuizDetail[]
 

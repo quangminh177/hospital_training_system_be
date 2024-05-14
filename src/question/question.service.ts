@@ -36,10 +36,11 @@ export class QuestionService {
       // Create new Question
       // const newQuestion = await this.prisma.question.create({
       //   data: {
-      //     topic: dto.topicId,
+      //     topicId: dto.topicId,
       //     questionName: dto.questionName,
       //     level: dto.level,
       //     image: dto.image,
+      //     // ...dto,
       //   },
       // });
 

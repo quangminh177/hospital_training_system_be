@@ -12,7 +12,6 @@ import { CurriculumModule } from './curriculum/curriculum.module';
 import { TopicModule } from './topic/topic.module';
 import { APP_FILTER } from '@nestjs/core';
 import { GlobalExceptionFilter } from './common/exception-filters/global-exception.filter';
-import { RolesGuard } from './common/guards/roles.guard';
 
 @Module({
   imports: [
@@ -29,10 +28,6 @@ import { RolesGuard } from './common/guards/roles.guard';
     TopicModule,
   ],
   providers: [
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
-    },
     {
       provide: APP_GUARD,
       useClass: AtGuard,
