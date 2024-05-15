@@ -17,7 +17,7 @@ import { UserService } from './user.service';
 import { EditUserDto } from './dto';
 import { Tokens } from 'src/auth/types';
 import { CreateUserDto } from './dto/create-user.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 
@@ -58,6 +58,48 @@ export class UserController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post('createUser')
+  @ApiOperation({
+    summary: 'Admin create new user',
+    description: `
+* Only admin can use this API
+
+* Admin create user and give some specific information`,
+  })
+  @ApiBody({
+    type: CreateUserDto,
+    examples: {
+      user_1: {
+        value: {
+          firstName: 'Minh',
+          lastName: 'Quyen',
+          email: 'quyenquangminh1@hospital.com',
+          password: 'quyenquangminh',
+          role: 'ADMIN',
+          phone: '0967864701',
+          // dob: '2001-07-17T00:00:00.000Z',
+          image: 'treble.jpg',
+          gender: 'Male',
+          departmentId: 1,
+          job: 'Doctor',
+        } as CreateUserDto,
+      },
+      user_2: {
+        value: {
+          firstName: 'Kien',
+          lastName: 'Nguyen',
+          email: 'nguyenngockien2@hospital.com',
+          password: 'nguyenngockien',
+          role: 'ADMIN',
+          phone: '0968686868',
+          // dob: '2001-07-17T00:00:00.000Z',
+          image: 'kiennn.jpg',
+          gender: 'Male',
+          departmentId: 1,
+          job: 'Doctor',
+        } as CreateUserDto,
+      },
+    },
+  })
   createUser(@Body() dto: CreateUserDto): Promise<Tokens> {
     return this.userService.createUser(dto);
   }
