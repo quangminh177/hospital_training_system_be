@@ -34,17 +34,13 @@ export class QuestionService {
   async createQuestion(dto: CreateQuestionDto) {
     try {
       // Create new Question
-      // const newQuestion = await this.prisma.question.create({
-      //   data: {
-      //     topicId: dto.topicId,
-      //     questionName: dto.questionName,
-      //     level: dto.level,
-      //     image: dto.image,
-      //     // ...dto,
-      //   },
-      // });
+      const newQuestion = await this.prisma.question.create({
+        data: {
+          ...dto,
+        },
+      });
 
-      // return newQuestion;
+      return newQuestion;
     } catch (error) {
       throw error;
     }
