@@ -9,26 +9,61 @@ export class QuestionService {
 
   //Get Questions by TopicId
   async getQuestionByTopicId(topicId) {
-    const allQuestions = this.prisma.question.findMany({
-      where: {
-        isDeleted: false,
-        topicId: topicId,
-      },
-    });
+    try {
+      const questions = await this.prisma.question.findMany({
+        where: {
+          isDeleted: false,
+          topicId: topicId,
+        },
+      });
 
-    return allQuestions;
+      const allQuestions = [];
+      for (const question of questions) {
+        //Get Answers of Question
+        const answers = await this.prisma.answer.findMany({
+          where: {
+            questionId: question.id,
+          },
+        });
+
+        const questionAnswer = {
+          ...question,
+          answers,
+        };
+        allQuestions.push(questionAnswer);
+      }
+
+      return allQuestions;
+    } catch (error) {
+      throw error;
+    }
   }
 
   //Get Question by Id
   async getQuestionById(questionId: number) {
-    const question = await this.prisma.question.findUnique({
-      where: {
-        id: questionId,
-        isDeleted: false,
-      },
-    });
+    try {
+      const question = await this.prisma.question.findUnique({
+        where: {
+          id: questionId,
+          isDeleted: false,
+        },
+      });
 
-    return question;
+      const answers = await this.prisma.answer.findMany({
+        where: {
+          questionId: question.id,
+        },
+      });
+
+      const questionAnswer = {
+        ...question,
+        answers,
+      };
+
+      return questionAnswer;
+    } catch (error) {
+      throw error;
+    }
   }
 
   //Create Question
@@ -44,12 +79,12 @@ export class QuestionService {
       });
 
       // Create Answer of this Question
-      for (const answer of dto.answers) {
+      for (let i = 0; i < dto.answers.length; i++) {
         await this.prisma.answer.create({
           data: {
-            answerName: answer.answerName,
-            isCorrect: answer.isCorrect,
-            defaultOrder: answer.defaultOrder,
+            answerName: dto.answers[i].answerName,
+            isCorrect: dto.answers[i].isCorrect,
+            defaultOrder: i + 1,
             question: {
               connect: { id: newQuestion.id },
             },
@@ -59,37 +94,61 @@ export class QuestionService {
 
       return newQuestion;
     } catch (error) {
-      console.log(error);
       throw error;
     }
   }
 
   //Edit Question by Id
   async editQuestionById(questionId: number, dto: EditQuestionDto) {
-    //Update Question
-    await this.prisma.question.update({
-      where: {
-        id: questionId,
-      },
-      data: {
-        ...dto,
-      },
-    });
+    try {
+      //Update Question
+      await this.prisma.question.update({
+        where: {
+          id: questionId,
+        },
+        data: {
+          questionName: dto.questionName,
+          topicId: dto.topicId,
+          level: dto.level,
+        },
+      });
 
-    return true;
+      if (dto.answers) {
+        //Update Answers of Question
+        for (let i = 0; i < dto.answers.length; i++) {
+          await this.prisma.answer.update({
+            where: {
+              id: dto.answers[i].answerId,
+            },
+            data: {
+              answerName: dto.answers[i].answerName,
+              isCorrect: dto.answers[i].isCorrect,
+            },
+          });
+        }
+      }
+
+      return true;
+    } catch (error) {
+      throw error;
+    }
   }
 
   //Delete Question By Id
   async deleteQuestionById(questionId: number) {
-    await this.prisma.question.update({
-      where: {
-        id: questionId,
-      },
-      data: {
-        isDeleted: true,
-      },
-    });
+    try {
+      await this.prisma.question.update({
+        where: {
+          id: questionId,
+        },
+        data: {
+          isDeleted: true,
+        },
+      });
 
-    return true;
+      return true;
+    } catch (error) {
+      throw error;
+    }
   }
 }

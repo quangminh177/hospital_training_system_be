@@ -29,5 +29,5 @@ export class CreateQuestionDto {
   @ArrayMinSize(3)
   @ValidateNested({ each: true })
   @Type(() => CreateAnswerDto)
-  answers?: CreateAnswerDto[];
+  answers: CreateAnswerDto[];
 }

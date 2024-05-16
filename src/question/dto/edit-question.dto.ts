@@ -1,9 +1,19 @@
 import { Level } from '@prisma/client';
-import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  ArrayMinSize,
+  IsArray,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
+import { CreateAnswerDto } from './create-answer.dto';
+import { Type } from 'class-transformer';
 
 export class EditQuestionDto {
-  @IsOptional()
   @IsNumber()
+  @IsOptional()
   topicId?: number;
 
   @IsEnum(Level)
@@ -15,6 +25,9 @@ export class EditQuestionDto {
   questionName?: string;
 
   @IsOptional()
-  @IsString()
-  image?: string;
+  @IsArray()
+  @ArrayMinSize(3)
+  @ValidateNested({ each: true })
+  @Type(() => CreateAnswerDto)
+  answers?: CreateAnswerDto[];
 }

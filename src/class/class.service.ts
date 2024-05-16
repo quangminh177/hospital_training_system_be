@@ -251,7 +251,7 @@ export class ClassService {
         },
       });
 
-      if (!!dto.schedules) {
+      if (dto.schedules) {
         //Get Schedule of Class
         const editedClassSchedule: Array<Schedule> =
           await this.prisma.schedule.findMany({
