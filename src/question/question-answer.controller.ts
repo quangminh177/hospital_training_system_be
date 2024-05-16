@@ -10,7 +10,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { QuestionService } from './question.service';
+import { QuestionService } from './question-answer.service';
 import { CreateQuestionDto, EditQuestionDto } from './dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/common/decorators';

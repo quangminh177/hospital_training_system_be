@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateQuestionDto, EditQuestionDto } from './dto';
+// import { Answer } from '@prisma/client';
 
 @Injectable()
 export class QuestionService {
@@ -36,12 +37,29 @@ export class QuestionService {
       // Create new Question
       const newQuestion = await this.prisma.question.create({
         data: {
-          ...dto,
+          questionName: dto.questionName,
+          topicId: dto.topicId,
+          level: dto.level,
         },
       });
 
+      // Create Answer of this Question
+      for (const answer of dto.answers) {
+        await this.prisma.answer.create({
+          data: {
+            answerName: answer.answerName,
+            isCorrect: answer.isCorrect,
+            defaultOrder: answer.defaultOrder,
+            question: {
+              connect: { id: newQuestion.id },
+            },
+          },
+        });
+      }
+
       return newQuestion;
     } catch (error) {
+      console.log(error);
       throw error;
     }
   }

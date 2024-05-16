@@ -268,10 +268,9 @@ model Question {
   id                   Int                 @id @default(autoincrement())
   createdAt            DateTime            @default(now())
   updatedAt            DateTime            @updatedAt
-  isDeleted   Boolean  @default(false)
+  isDeleted            Boolean             @default(false)
   level                Level
   questionName         String
-  image                String?
   answers              Answer[]
   topic                Topic               @relation(fields: [topicId], references: [id])
   topicId              Int
@@ -285,12 +284,11 @@ model Answer {
   id           Int      @id @default(autoincrement())
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  isDeleted   Boolean  @default(false)
+  isDeleted    Boolean  @default(false)
   questionId   Int
   answerName   String
   isCorrect    Boolean
   defaultOrder Int
-  image        String
   question     Question @relation(fields: [questionId], references: [id])
 
   @@map("answers")

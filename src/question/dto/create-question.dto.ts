@@ -5,11 +5,10 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
-  IsOptional,
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { CreateAnswer } from './create-answer.dto';
+import { CreateAnswerDto } from './create-answer.dto';
 import { Type } from 'class-transformer';
 
 export class CreateQuestionDto {
@@ -25,14 +24,10 @@ export class CreateQuestionDto {
   @IsString()
   questionName: string;
 
-  @IsOptional()
-  @IsString()
-  image?: string;
-
   @IsNotEmpty()
   @IsArray()
-  @ArrayMinSize(1)
+  @ArrayMinSize(3)
   @ValidateNested({ each: true })
-  @Type(() => CreateAnswer)
-  answer: CreateAnswer[];
+  @Type(() => CreateAnswerDto)
+  answers?: CreateAnswerDto[];
 }

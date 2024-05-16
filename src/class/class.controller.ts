@@ -19,6 +19,7 @@ import { CreateClassDto, CreateClassWithExcelDto, EditClassDto } from './dto';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { RolesGuard } from 'src/common/guards/roles.guard';
+// import { Public } from 'src/common/decorators';
 
 @Controller('class')
 @ApiTags('class')
@@ -28,6 +29,7 @@ export class ClassController {
   //Get All Classes
   @Roles('ADMIN', 'UPPER')
   @UseGuards(RolesGuard)
+  // @Public()
   @HttpCode(HttpStatus.OK)
   @Get('')
   getAllClass() {

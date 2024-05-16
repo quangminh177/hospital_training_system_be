@@ -12,6 +12,7 @@ import { CurriculumModule } from './curriculum/curriculum.module';
 import { TopicModule } from './topic/topic.module';
 import { APP_FILTER } from '@nestjs/core';
 import { GlobalExceptionFilter } from './common/exception-filters/global-exception.filter';
+import { QuestionModule } from './question/question-answer.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { GlobalExceptionFilter } from './common/exception-filters/global-excepti
     DepartmentModule,
     CurriculumModule,
     TopicModule,
+    QuestionModule,
   ],
   providers: [
     {

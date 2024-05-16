@@ -1,12 +1,6 @@
-import {
-  IsBoolean,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class CreateAnswer {
+export class CreateAnswerDto {
   @IsNotEmpty()
   @IsString()
   answerName: string;
@@ -18,8 +12,4 @@ export class CreateAnswer {
   @IsNotEmpty()
   @IsNumber()
   defaultOrder: number;
-
-  @IsOptional()
-  @IsString()
-  image: string;
 }
