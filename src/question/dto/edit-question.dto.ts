@@ -8,8 +8,8 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { CreateAnswerDto } from './create-answer.dto';
 import { Type } from 'class-transformer';
+import { EditAnswerDto } from './edit-answer.dto';
 
 export class EditQuestionDto {
   @IsNumber()
@@ -28,6 +28,6 @@ export class EditQuestionDto {
   @IsArray()
   @ArrayMinSize(3)
   @ValidateNested({ each: true })
-  @Type(() => CreateAnswerDto)
-  answers?: CreateAnswerDto[];
+  @Type(() => EditAnswerDto)
+  answers?: EditAnswerDto[];
 }

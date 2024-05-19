@@ -13,6 +13,7 @@ import { TopicModule } from './topic/topic.module';
 import { APP_FILTER } from '@nestjs/core';
 import { GlobalExceptionFilter } from './common/exception-filters/global-exception.filter';
 import { QuestionModule } from './question/question-answer.module';
+import { QuizModule } from './quiz/quiz.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { QuestionModule } from './question/question-answer.module';
     CurriculumModule,
     TopicModule,
     QuestionModule,
+    QuizModule,
   ],
   providers: [
     {

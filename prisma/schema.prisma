@@ -175,6 +175,7 @@ model Topic {
   externalResources ExternalResource[]
   questions         Question[]
   topicGrades       TopicGrade[]
+  quizzes           Quiz[]
   course            Course             @relation(fields: [courseId], references: [id])
 
   @@map("topics")
@@ -298,7 +299,8 @@ model Quiz {
   id           Int           @id @default(autoincrement())
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
-  isDeleted   Boolean  @default(false)
+  isDeleted    Boolean  @default(false)
+  topicId      Int
   quizName     String
   timeLimit    String
   weight       Decimal
@@ -306,6 +308,7 @@ model Quiz {
   endAt        DateTime
   quizAttempts QuizAttempt[]
   quizDetails  QuizDetail[]
+  topic     Topic @relation(fields: [topicId], references: [id])
 
   @@map("quizzes")
 }
