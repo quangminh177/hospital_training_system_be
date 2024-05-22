@@ -9,11 +9,14 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Public } from 'src/common/decorators';
+// import { Public } from 'src/common/decorators';
 import { QuizService } from './quiz.service';
 import { CreateQuizDto, EditQuizDto } from './dto';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { RolesGuard } from 'src/common/guards/roles.guard';
 
 @Controller('quiz')
 @ApiTags('quiz')
@@ -21,7 +24,8 @@ export class QuizController {
   constructor(private quizService: QuizService) {}
 
   //Get Quiz By TopicId
-  @Public()
+  @Roles('TRAINER')
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('topic/:id')
   getAllQuiz(@Param('id', ParseIntPipe) topicId: number) {
@@ -29,15 +33,26 @@ export class QuizController {
   }
 
   //Get Quiz By Id
-  @Public()
+  @Roles('TRAINER', 'ADMIN')
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
   getQuizById(@Param('id', ParseIntPipe) quizId: number) {
     return this.quizService.getQuizById(quizId);
   }
 
+  //Shuffle Quiz By QuizId
+  @Roles('TRAINER', 'ADMIN')
+  @UseGuards(RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post('/shuffleQuiz/:id')
+  shuffleQuizById(@Param('id', ParseIntPipe) quizId: number) {
+    return this.quizService.shuffleQuizById(quizId);
+  }
+
   //Create Quiz
-  @Public()
+  @Roles('TRAINER', 'ADMIN')
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post('createQuiz')
   createQuiz(@Body() dto: CreateQuizDto) {
@@ -45,7 +60,8 @@ export class QuizController {
   }
 
   //Edit Quiz by Id
-  @Public()
+  @Roles('TRAINER')
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Patch('editQuiz/:id')
   editQuizById(
@@ -56,7 +72,8 @@ export class QuizController {
   }
 
   //Delete Quiz by Id
-  @Public()
+  @Roles('TRAINER')
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Delete('deleteQuiz/:id')
   deleteQuizById(@Param('id', ParseIntPipe) quizId: number) {

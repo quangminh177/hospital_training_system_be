@@ -11,24 +11,24 @@ model User {
   id                    Int                    @id @default(autoincrement())
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
+  isDeleted             Boolean                @default(false)
   email                 String                 @unique
-  hash                  String?
-  firstName             String?
-  lastName              String?
-  role                  Role   ?               @default(USER)
-  job                   Job?                    
-  phone                 String?                @unique
-  dob                   DateTime?
+  hash                  String
+  firstName             String
+  lastName              String
+  role                  Role                  
+  job                   Job                    
+  phone                 String                @unique
+  dob                   DateTime
   image                 String?
-  gender                Gender?
-  departmentId          Int?
-  isDeleted             Boolean?                @default(false)
+  gender                Gender
+  departmentId          Int
   hashedRt              String?
   assignmentSubmissions AssignmentSubmission[]
   classUsers            ClassUser[]
   quizAttempts          QuizAttempt[]
   topicGrades           TopicGrade[]
-  department            Department?             @relation(fields: [departmentId], references: [id])
+  department            Department             @relation(fields: [departmentId], references: [id])
   curriculumDetails     CurriculumDetail[]
 
   @@map("users")
@@ -362,7 +362,8 @@ model QuizAttemptDetail {
 enum Role {
   ADMIN
   UPPER
-  USER
+  TRAINER
+  TRAINEE
 }
 
 enum Gender {

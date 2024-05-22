@@ -13,6 +13,7 @@ export class QuizService {
   //Get Quiz by TopicId
   async getQuizByTopicId(topicId: number) {
     try {
+      //Get all Quizzes
       const quizzes = await this.prisma.quiz.findMany({
         where: {
           isDeleted: false,
@@ -20,23 +21,42 @@ export class QuizService {
         },
       });
 
-      // const allQuizzes = [];
-      // for (const quiz of quizzes) {
-      //   //Get Answers of Question
-      //   const answers = await this.prisma.answer.findMany({
-      //     where: {
-      //       questionId: question.id,
-      //     },
-      //   });
+      const allQuizzes = [];
 
-      //   const questionAnswer = {
-      //     ...question,
-      //     answers,
-      //   };
-      //   allQuestions.push(questionAnswer);
-      // }
+      for (const quiz of quizzes) {
+        //Get Question from QuizDetail
+        const questionQuizzes = await this.prisma.quizDetail.findMany({
+          where: {
+            quizId: quiz.id,
+            isDeleted: false,
+          },
+        });
 
-      return quizzes;
+        const allQuestionsOfQuiz = [];
+
+        for (const questionQuiz of questionQuizzes) {
+          // Get All Questions of Quiz
+          const questions = await this.prisma.question.findMany({
+            where: { id: questionQuiz.questionId, isDeleted: false },
+          });
+
+          for (const question of questions) {
+            const answers = await this.prisma.answer.findMany({
+              where: {
+                questionId: question.id,
+                isDeleted: false,
+              },
+            });
+
+            const questionAnswers = { ...question, answers };
+            allQuestionsOfQuiz.push(questionAnswers);
+          }
+        }
+        const quizDetail = { ...quiz, allQuestionsOfQuiz };
+        allQuizzes.push(quizDetail);
+      }
+
+      return allQuizzes;
     } catch (error) {
       throw error;
     }
@@ -52,19 +72,124 @@ export class QuizService {
         },
       });
 
-      // const answers = await this.prisma.answer.findMany({
-      //   where: {
-      //     questionId: question.id,
-      //   },
-      // });
+      //Get Question from QuizDetail
+      const questionQuizzes = await this.prisma.quizDetail.findMany({
+        where: {
+          quizId: quiz.id,
+          isDeleted: false,
+        },
+      });
 
-      // const questionAnswer = {
-      //   ...question,
-      //   answers,
-      // };
+      const allQuestionsOfQuiz = [];
 
-      // return questionAnswer;
-      return quiz;
+      for (const questionQuiz of questionQuizzes) {
+        // Get All Questions of Quiz
+        const questions = await this.prisma.question.findMany({
+          where: { id: questionQuiz.questionId, isDeleted: false },
+        });
+
+        for (const question of questions) {
+          const answers = await this.prisma.answer.findMany({
+            where: {
+              questionId: question.id,
+              isDeleted: false,
+            },
+          });
+
+          const questionAnswers = { ...question, answers };
+          allQuestionsOfQuiz.push(questionAnswers);
+        }
+      }
+
+      const quizDetail = { ...quiz, allQuestionsOfQuiz };
+
+      return quizDetail;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  //Shuffle Quiz By Id
+  async shuffleQuizById(quizId: number) {
+    try {
+      const quiz = await this.prisma.quiz.findUnique({
+        where: {
+          id: quizId,
+          isDeleted: false,
+        },
+      });
+
+      //Get Question from QuizDetail
+      const questionQuizzes = await this.prisma.quizDetail.findMany({
+        where: {
+          quizId: quiz.id,
+          isDeleted: false,
+        },
+      });
+
+      const allQuestionsOfQuiz = [];
+
+      for (const questionQuiz of questionQuizzes) {
+        // Get All Questions of Quiz
+        const questions = await this.prisma.question.findMany({
+          where: { id: questionQuiz.questionId, isDeleted: false },
+        });
+
+        for (const question of questions) {
+          const answers = await this.prisma.answer.findMany({
+            where: {
+              questionId: question.id,
+              isDeleted: false,
+            },
+          });
+
+          const questionAnswers = { ...question, answers };
+          allQuestionsOfQuiz.push(questionAnswers);
+        }
+      }
+
+      //Tạo đề thi trộn mới từ đề gốc
+      let shuffledQuiz = await this.prisma.quiz.create({
+        data: {
+          topicId: quiz.topicId,
+          quizName: quiz.quizName,
+          timeLimit: quiz.timeLimit,
+          weight: quiz.weight,
+          startAt: quiz.startAt,
+          endAt: quiz.endAt,
+        },
+      });
+
+      shuffledQuiz = await this.prisma.quiz.update({
+        where: {
+          id: shuffledQuiz.id,
+        },
+        data: {
+          quizName: `${quiz.quizName} Mã đề ${shuffledQuiz.id}`,
+        },
+      });
+
+      //Trộn các câu hỏi
+      allQuestionsOfQuiz.sort(function () {
+        return Math.random() - 0.5;
+      });
+
+      for (let i = 0; i < allQuestionsOfQuiz.length; i++) {
+        allQuestionsOfQuiz[i].answers.sort(function () {
+          return Math.random() - 0.5;
+        });
+
+        await this.prisma.quizDetail.create({
+          data: {
+            questionId: allQuestionsOfQuiz[i].id,
+            quizId: shuffledQuiz.id,
+          },
+        });
+      }
+
+      const quizDetail = { ...shuffledQuiz, allQuestionsOfQuiz };
+
+      return quizDetail;
     } catch (error) {
       throw error;
     }
@@ -77,7 +202,7 @@ export class QuizService {
       const newQuiz = await this.prisma.quiz.create({
         data: {
           topicId: dto.topicId,
-          quizName: dto.quizName,
+          quizName: `${dto.quizName} ${dto.timeLimit}`,
           timeLimit: dto.timeLimit,
           weight: dto.weight,
           startAt: dto.startAt,
@@ -151,21 +276,6 @@ export class QuizService {
           ...dto,
         },
       });
-
-      // if (dto.answers) {
-      //   //Update Answers of Question
-      //   for (let i = 0; i < dto.answers.length; i++) {
-      //     await this.prisma.answer.update({
-      //       where: {
-      //         id: dto.answers[i].answerId,
-      //       },
-      //       data: {
-      //         answerName: dto.answers[i].answerName,
-      //         isCorrect: dto.answers[i].isCorrect,
-      //       },
-      //     });
-      //   }
-      // }
 
       return true;
     } catch (error) {

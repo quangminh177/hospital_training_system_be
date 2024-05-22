@@ -9,11 +9,14 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { QuestionService } from './question-answer.service';
 import { CreateQuestionDto, EditQuestionDto } from './dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/common/decorators';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { RolesGuard } from 'src/common/guards/roles.guard';
 
 @Controller('question')
 @ApiTags('question')
@@ -21,6 +24,8 @@ export class QuestionController {
   constructor(private questionService: QuestionService) {}
 
   //Get Question By TopicId
+  @Roles('TRAINER')
+  @UseGuards(RolesGuard)
   @Public()
   @HttpCode(HttpStatus.OK)
   @Get('topic/:id')
@@ -29,6 +34,8 @@ export class QuestionController {
   }
 
   //Get Question By Id
+  @Roles('TRAINER')
+  @UseGuards(RolesGuard)
   @Public()
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
@@ -37,6 +44,8 @@ export class QuestionController {
   }
 
   //Create Question
+  @Roles('TRAINER')
+  @UseGuards(RolesGuard)
   @Public()
   @HttpCode(HttpStatus.CREATED)
   @Post('createQuestion')
@@ -45,6 +54,8 @@ export class QuestionController {
   }
 
   //Edit Question by Id
+  @Roles('TRAINER')
+  @UseGuards(RolesGuard)
   @Public()
   @HttpCode(HttpStatus.OK)
   @Patch('editQuestion/:id')
@@ -56,6 +67,8 @@ export class QuestionController {
   }
 
   //Delete Question by Id
+  @Roles('TRAINER')
+  @UseGuards(RolesGuard)
   @Public()
   @HttpCode(HttpStatus.OK)
   @Delete('deleteQuestion/:id')
