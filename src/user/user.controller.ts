@@ -9,9 +9,10 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { Role, User } from '@prisma/client';
 import { GetCurrentUser, GetCurrentUserId } from '../common/decorators';
 import { UserService } from './user.service';
 import { EditUserDto } from './dto';
@@ -42,8 +43,16 @@ export class UserController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get()
-  getUsers() {
-    return this.userService.getUsers();
+  getUsers(
+    @Query()
+    querry: {
+      page: number;
+      size: number;
+      role: Role;
+      keyword: string;
+    },
+  ) {
+    return this.userService.getUsers(querry);
   }
 
   @Roles('ADMIN')

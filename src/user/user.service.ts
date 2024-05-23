@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { EditUserDto } from './dto';
 import { Tokens } from 'src/auth/types';
 import { AuthService } from 'src/auth/auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -12,9 +13,31 @@ export class UserService {
     private authService: AuthService,
   ) {}
 
-  async getUsers() {
+  async getUsers(querry: {
+    page: number;
+    size: number;
+    role: Role;
+    keyword: string;
+  }) {
     try {
-      const users = await this.prisma.user.findMany();
+      const { page, size, role, keyword } = querry;
+      if (page <= 0)
+        throw new HttpException('Invalid input', HttpStatus.BAD_REQUEST);
+
+      const take: number = size;
+      const skip: number = (page - 1) * size;
+      const users = await this.prisma.user.findMany({
+        take: +take,
+        skip: skip,
+        where: {
+          isDeleted: false,
+          email: {
+            contains: keyword,
+            mode: 'insensitive',
+          },
+          role: role,
+        },
+      });
 
       users.map((user) => delete user.hashedRt);
       return users;

@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { CreateDepartmentDto, EditDepartmentDto } from './dto';
@@ -27,8 +28,15 @@ export class DepartmentController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('')
-  getAllDepartment() {
-    return this.departmentService.getAllDepartment();
+  getAllDepartment(
+    @Query()
+    querry: {
+      page: number;
+      size: number;
+      keyword: string;
+    },
+  ) {
+    return this.departmentService.getAllDepartment(querry);
   }
 
   //Get Department By Id

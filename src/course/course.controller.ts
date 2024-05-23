@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { CourseService } from './course.service';
@@ -27,8 +28,15 @@ export class CourseController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('')
-  getAllCourse() {
-    return this.courseService.getAllCourse();
+  getAllCourse(
+    @Query()
+    querry: {
+      page: number;
+      size: number;
+      keyword: string;
+    },
+  ) {
+    return this.courseService.getAllCourse(querry);
   }
 
   //Get Course By Id

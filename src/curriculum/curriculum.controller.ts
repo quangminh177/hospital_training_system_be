@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { CurriculumService } from './curriculum.service';
@@ -27,8 +28,15 @@ export class CurriculumController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('')
-  getAllCurriculum() {
-    return this.curriculumService.getAllCurriculum();
+  getAllCurriculum(
+    @Query()
+    querry: {
+      page: number;
+      size: number;
+      keyword: string;
+    },
+  ) {
+    return this.curriculumService.getAllCurriculum(querry);
   }
 
   //Get Curriculum By Id

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateDepartmentDto, EditDepartmentDto } from './dto';
@@ -8,11 +8,27 @@ export class DepartmentService {
   constructor(private prisma: PrismaService) {}
 
   //Get all Department
-  async getAllDepartment() {
+  async getAllDepartment(querry: {
+    page: number;
+    size: number;
+    keyword: string;
+  }) {
     try {
+      const { page, size, keyword } = querry;
+      if (page <= 0)
+        throw new HttpException('Invalid input', HttpStatus.BAD_REQUEST);
+
+      const take: number = size;
+      const skip: number = (page - 1) * size;
       const allDepartments = this.prisma.department.findMany({
+        take: +take,
+        skip: skip,
         where: {
           isDeleted: false,
+          name: {
+            contains: keyword,
+            mode: 'insensitive',
+          },
         },
       });
 

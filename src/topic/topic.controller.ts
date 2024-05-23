@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { CreateTopicDto, EditTopicDto } from './dto';
@@ -25,17 +26,25 @@ export class TopicController {
 
   //Get Topics By CourseId
   // @Public()
-  @Roles('ADMIN', 'UPPER')
+  @Roles('TRAINER')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('course/:id')
-  getAllTopic(@Param('id', ParseIntPipe) courseId: number) {
-    return this.topicService.getTopicByCourseId(courseId);
+  getAllTopic(
+    @Param('id', ParseIntPipe) courseId: number,
+    @Query()
+    querry: {
+      page: number;
+      size: number;
+      keyword: string;
+    },
+  ) {
+    return this.topicService.getTopicByCourseId(courseId, querry);
   }
 
   //Get Topic By Id
   // @Public()
-  @Roles('ADMIN', 'UPPER')
+  @Roles('TRAINER')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
@@ -45,7 +54,7 @@ export class TopicController {
 
   //Create Topic
   // @Public()
-  @Roles('ADMIN', 'UPPER')
+  @Roles('TRAINER')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post('createTopic')
@@ -55,7 +64,7 @@ export class TopicController {
 
   //Edit Topic by Id
   // @Public()
-  @Roles('ADMIN', 'UPPER')
+  @Roles('TRAINER')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Patch('editTopic/:id')
@@ -68,7 +77,7 @@ export class TopicController {
 
   //Delete Topic by Id
   // @Public()
-  @Roles('ADMIN', 'UPPER')
+  @Roles('TRAINER')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Delete('deleteTopic/:id')
