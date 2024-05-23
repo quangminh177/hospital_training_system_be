@@ -23,7 +23,7 @@ export class CourseController {
   constructor(private courseService: CourseService) {}
 
   //Get All Courses
-  @Roles('UPPER')
+  @Roles('ADMIN')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('')
@@ -32,7 +32,7 @@ export class CourseController {
   }
 
   //Get Course By Id
-  @Roles('UPPER')
+  @Roles('ADMIN')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
@@ -41,7 +41,7 @@ export class CourseController {
   }
 
   //Create Course
-  @Roles('UPPER')
+  @Roles('ADMIN')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post('createCourse')
@@ -50,7 +50,7 @@ export class CourseController {
   }
 
   //Edit Course by Id
-  @Roles('UPPER')
+  @Roles('ADMIN')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Patch('editCourse/:id')
@@ -62,7 +62,7 @@ export class CourseController {
   }
 
   //Delete Course by Id
-  @Roles('UPPER')
+  @Roles('ADMIN')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Delete('deleteCourse/:id')

@@ -33,7 +33,7 @@ export class QuizController {
   }
 
   //Get Quiz By Id
-  @Roles('TRAINER', 'ADMIN')
+  @Roles('TRAINER')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/:id')

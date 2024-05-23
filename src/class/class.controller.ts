@@ -68,7 +68,7 @@ export class ClassController {
   }
 
   //Edit Class by Id
-  @Roles('UPPER')
+  @Roles('ADMIN', 'UPPER')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Patch('editClass/:id')
@@ -80,7 +80,7 @@ export class ClassController {
   }
 
   //Delete Class by Id
-  @Roles('UPPER')
+  @Roles('ADMIN', 'UPPER')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Delete('deleteClass/:id')
