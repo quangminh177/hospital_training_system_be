@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -19,6 +20,7 @@ import { CreateClassDto, CreateClassWithExcelDto, EditClassDto } from './dto';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { RolesGuard } from 'src/common/guards/roles.guard';
+import { StatusClass } from '@prisma/client';
 // import { Public } from 'src/common/decorators';
 
 @Controller('class')
@@ -32,8 +34,16 @@ export class ClassController {
   // @Public()
   @HttpCode(HttpStatus.OK)
   @Get('')
-  getAllClass() {
-    return this.classService.getAllClass();
+  getAllClass(
+    @Query()
+    querry: {
+      page: number;
+      size: number;
+      status: StatusClass;
+      keyword: string;
+    },
+  ) {
+    return this.classService.getAllClass(querry);
   }
 
   //Get Class By Id

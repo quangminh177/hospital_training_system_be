@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateClassDto, CreateClassWithExcelDto, EditClassDto } from './dto';
 import { PrismaService } from '../prisma/prisma.service';
 import * as exceljs from 'exceljs';
-import { Schedule } from '@prisma/client';
+import { Schedule, StatusClass } from '@prisma/client';
 import { EditUserDto } from 'src/user/dto';
 
 @Injectable()
@@ -10,11 +10,30 @@ export class ClassService {
   constructor(private prisma: PrismaService) {}
 
   //Get all Class
-  async getAllClass() {
+  async getAllClass(querry: {
+    page: number;
+    size: number;
+    status: StatusClass;
+    keyword: string;
+  }) {
     try {
+      const { page, size, status, keyword } = querry;
+      if (page <= 0)
+        throw new HttpException('Invalid input', HttpStatus.BAD_REQUEST);
+
+      const take: number = size;
+      const skip: number = (page - 1) * size;
+
       const allClasses = this.prisma.class.findMany({
+        take: +take,
+        skip: skip,
         where: {
           isDeleted: false,
+          className: {
+            contains: keyword,
+            mode: 'insensitive',
+          },
+          status: status,
         },
       });
 

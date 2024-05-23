@@ -27,7 +27,7 @@ export class QuestionController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('topic/:id')
-  getAllQuestion(@Param('id', ParseIntPipe) topicId: number) {
+  async getAllQuestion(@Param('id', ParseIntPipe) topicId: number) {
     return this.questionService.getQuestionByTopicId(topicId);
   }
 
@@ -36,7 +36,7 @@ export class QuestionController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
-  getQuestionById(@Param('id', ParseIntPipe) questionId: number) {
+  async getQuestionById(@Param('id', ParseIntPipe) questionId: number) {
     return this.questionService.getQuestionById(questionId);
   }
 
@@ -45,7 +45,7 @@ export class QuestionController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post('createQuestion')
-  createQuestion(@Body() dto: CreateQuestionDto) {
+  async createQuestion(@Body() dto: CreateQuestionDto) {
     return this.questionService.createQuestion(dto);
   }
 
@@ -54,7 +54,7 @@ export class QuestionController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Patch('editQuestion/:id')
-  editQuestionById(
+  async editQuestionById(
     @Param('id', ParseIntPipe) questionId: number,
     @Body() dto: EditQuestionDto,
   ) {
@@ -66,7 +66,7 @@ export class QuestionController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Delete('deleteQuestion/:id')
-  deleteQuestionById(@Param('id', ParseIntPipe) questionId: number) {
+  async deleteQuestionById(@Param('id', ParseIntPipe) questionId: number) {
     return this.questionService.deleteQuestionById(questionId);
   }
 }
