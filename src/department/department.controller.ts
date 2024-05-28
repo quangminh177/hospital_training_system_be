@@ -28,7 +28,7 @@ export class DepartmentController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('')
-  getAllDepartment(
+  async getAllDepartment(
     @Query()
     querry: {
       page: number;
@@ -36,7 +36,7 @@ export class DepartmentController {
       keyword: string;
     },
   ) {
-    return this.departmentService.getAllDepartment(querry);
+    return await this.departmentService.getAllDepartment(querry);
   }
 
   //Get Department By Id
@@ -44,8 +44,8 @@ export class DepartmentController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
-  getDepartmentById(@Param('id', ParseIntPipe) departmentId: number) {
-    return this.departmentService.getDepartmentById(departmentId);
+  async getDepartmentById(@Param('id', ParseIntPipe) departmentId: number) {
+    return await this.departmentService.getDepartmentById(departmentId);
   }
 
   //Create Department
@@ -54,7 +54,7 @@ export class DepartmentController {
   @HttpCode(HttpStatus.CREATED)
   @Post('createDepartment')
   async createDepartment(@Body() dto: CreateDepartmentDto) {
-    return this.departmentService.createDepartment(dto);
+    return await this.departmentService.createDepartment(dto);
   }
 
   //Edit Department by Id
@@ -62,11 +62,11 @@ export class DepartmentController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Patch('editDepartment/:id')
-  editDepartmentById(
+  async editDepartmentById(
     @Param('id', ParseIntPipe) departmentId: number,
     @Body() dto: EditDepartmentDto,
   ) {
-    return this.departmentService.editDepartmentById(departmentId, dto);
+    return await this.departmentService.editDepartmentById(departmentId, dto);
   }
 
   //Delete Department by Id
@@ -74,7 +74,7 @@ export class DepartmentController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Delete('deleteDepartment/:id')
-  deleteDepartmentById(@Param('id', ParseIntPipe) departmentId: number) {
-    return this.departmentService.deleteDepartmentById(departmentId);
+  async deleteDepartmentById(@Param('id', ParseIntPipe) departmentId: number) {
+    return await this.departmentService.deleteDepartmentById(departmentId);
   }
 }

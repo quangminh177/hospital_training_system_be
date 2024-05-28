@@ -16,7 +16,7 @@ export class CourseService {
       const take: number = size;
       const skip: number = (page - 1) * size;
 
-      const allCourses = this.prisma.course.findMany({
+      const allCourses = await this.prisma.course.findMany({
         take: +take,
         skip: skip,
         where: {

@@ -28,7 +28,7 @@ export class CurriculumController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('')
-  getAllCurriculum(
+  async getAllCurriculum(
     @Query()
     querry: {
       page: number;
@@ -36,7 +36,7 @@ export class CurriculumController {
       keyword: string;
     },
   ) {
-    return this.curriculumService.getAllCurriculum(querry);
+    return await this.curriculumService.getAllCurriculum(querry);
   }
 
   //Get Curriculum By Id
@@ -44,8 +44,8 @@ export class CurriculumController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
-  getCurriculumById(@Param('id', ParseIntPipe) curriculumId: number) {
-    return this.curriculumService.getCurriculumById(curriculumId);
+  async getCurriculumById(@Param('id', ParseIntPipe) curriculumId: number) {
+    return await this.curriculumService.getCurriculumById(curriculumId);
   }
 
   //Create Curriculum
@@ -54,7 +54,7 @@ export class CurriculumController {
   @HttpCode(HttpStatus.CREATED)
   @Post('createCurriculum')
   async createCurriculum(@Body() dto: CreateCurriculumDto) {
-    return this.curriculumService.createCurriculum(dto);
+    return await this.curriculumService.createCurriculum(dto);
   }
 
   //Edit Curriculum by Id
@@ -62,11 +62,11 @@ export class CurriculumController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Patch('editCurriculum/:id')
-  editCurriculumById(
+  async editCurriculumById(
     @Param('id', ParseIntPipe) curriculumId: number,
     @Body() dto: EditCurriculumDto,
   ) {
-    return this.curriculumService.editCurriculumById(curriculumId, dto);
+    return await this.curriculumService.editCurriculumById(curriculumId, dto);
   }
 
   //Delete Curriculum by Id
@@ -74,7 +74,7 @@ export class CurriculumController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Delete('deleteCurriculum/:id')
-  deleteCurriculumById(@Param('id', ParseIntPipe) curriculumId: number) {
-    return this.curriculumService.deleteCurriculumById(curriculumId);
+  async deleteCurriculumById(@Param('id', ParseIntPipe) curriculumId: number) {
+    return await this.curriculumService.deleteCurriculumById(curriculumId);
   }
 }

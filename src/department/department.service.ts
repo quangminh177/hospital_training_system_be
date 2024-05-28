@@ -1,5 +1,4 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateDepartmentDto, EditDepartmentDto } from './dto';
 
@@ -20,7 +19,7 @@ export class DepartmentService {
 
       const take: number = size;
       const skip: number = (page - 1) * size;
-      const allDepartments = this.prisma.department.findMany({
+      const allDepartments = await this.prisma.department.findMany({
         take: +take,
         skip: skip,
         where: {

@@ -6,6 +6,33 @@ import { CreateTopicDto, EditTopicDto } from './dto';
 export class TopicService {
   constructor(private prisma: PrismaService) {}
 
+  //Get all Topics
+  async getAllTopics(querry: { page: number; size: number; keyword: string }) {
+    try {
+      const { page, size, keyword } = querry;
+      if (page <= 0)
+        throw new HttpException('Invalid input', HttpStatus.BAD_REQUEST);
+
+      const take: number = size;
+      const skip: number = (page - 1) * size;
+      const allTopics = this.prisma.topic.findMany({
+        take: +take,
+        skip: skip,
+        where: {
+          isDeleted: false,
+          topicName: {
+            contains: keyword,
+            mode: 'insensitive',
+          },
+        },
+      });
+
+      return allTopics;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   //Get Topic by CourseId
   async getTopicByCourseId(
     courseId,

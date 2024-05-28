@@ -17,6 +17,9 @@ import { QuizService } from './quiz.service';
 import { CreateQuizDto, EditQuizDto } from './dto';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { RolesGuard } from 'src/common/guards/roles.guard';
+import { GetCurrentUser } from 'src/common/decorators';
+import { User } from '@prisma/client';
+import { AttemptQuizDto } from './dto/attempt-quiz.dto';
 
 @Controller('quiz')
 @ApiTags('quiz')
@@ -28,8 +31,8 @@ export class QuizController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('topic/:id')
-  getAllQuiz(@Param('id', ParseIntPipe) topicId: number) {
-    return this.quizService.getQuizByTopicId(topicId);
+  async getAllQuiz(@Param('id', ParseIntPipe) topicId: number) {
+    return await this.quizService.getQuizByTopicId(topicId);
   }
 
   //Get Quiz By Id
@@ -37,26 +40,26 @@ export class QuizController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
-  getQuizById(@Param('id', ParseIntPipe) quizId: number) {
-    return this.quizService.getQuizById(quizId);
+  async getQuizById(@Param('id', ParseIntPipe) quizId: number) {
+    return await this.quizService.getQuizById(quizId);
   }
 
   //Shuffle Quiz By QuizId
-  @Roles('TRAINER', 'ADMIN')
+  @Roles('TRAINER')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Post('/shuffleQuiz/:id')
-  shuffleQuizById(@Param('id', ParseIntPipe) quizId: number) {
-    return this.quizService.shuffleQuizById(quizId);
+  async shuffleQuizById(@Param('id', ParseIntPipe) quizId: number) {
+    return await this.quizService.shuffleQuizById(quizId);
   }
 
   //Create Quiz
-  @Roles('TRAINER', 'ADMIN')
+  @Roles('TRAINER')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post('createQuiz')
-  createQuiz(@Body() dto: CreateQuizDto) {
-    return this.quizService.createQuiz(dto);
+  async createQuiz(@Body() dto: CreateQuizDto) {
+    return await this.quizService.createQuiz(dto);
   }
 
   //Edit Quiz by Id
@@ -64,11 +67,11 @@ export class QuizController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Patch('editQuiz/:id')
-  editQuizById(
+  async editQuizById(
     @Param('id', ParseIntPipe) quizId: number,
     @Body() dto: EditQuizDto,
   ) {
-    return this.quizService.editQuizById(quizId, dto);
+    return await this.quizService.editQuizById(quizId, dto);
   }
 
   //Delete Quiz by Id
@@ -76,7 +79,20 @@ export class QuizController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Delete('deleteQuiz/:id')
-  deleteQuizById(@Param('id', ParseIntPipe) quizId: number) {
-    return this.quizService.deleteQuizById(quizId);
+  async deleteQuizById(@Param('id', ParseIntPipe) quizId: number) {
+    return await this.quizService.deleteQuizById(quizId);
+  }
+
+  //Attempt Quiz
+  @Roles('TRAINEE')
+  @UseGuards(RolesGuard)
+  @HttpCode(HttpStatus.CREATED)
+  @Post('attemptQuiz/:id')
+  async attemptQuiz(
+    @GetCurrentUser() user: User,
+    @Param('id', ParseIntPipe) quizId: number,
+    @Body() dto: AttemptQuizDto,
+  ) {
+    return await this.quizService.attemptQuiz(user, quizId, dto);
   }
 }

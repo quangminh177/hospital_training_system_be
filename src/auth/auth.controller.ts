@@ -19,31 +19,31 @@ export class AuthController {
   @Public()
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
-  signup(@Body() dto: SignupDto): Promise<Tokens> {
-    return this.authService.signup(dto);
+  async signup(@Body() dto: SignupDto): Promise<Tokens> {
+    return await this.authService.signup(dto);
   }
 
   @Public()
   @Post('signin')
   @HttpCode(HttpStatus.OK)
-  signin(@Body() dto: SigninDto): Promise<Tokens> {
-    return this.authService.signin(dto);
+  async signin(@Body() dto: SigninDto): Promise<Tokens> {
+    return await this.authService.signin(dto);
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  logout(@GetCurrentUserId() userId: number): Promise<boolean> {
-    return this.authService.logout(userId);
+  async logout(@GetCurrentUserId() userId: number): Promise<boolean> {
+    return await this.authService.logout(userId);
   }
 
   @Public()
   @UseGuards(RtGuard)
   @Post('refreshToken')
   @HttpCode(HttpStatus.OK)
-  refreshTokens(
+  async refreshTokens(
     @GetCurrentUserId() userId: number,
     @GetCurrentUser('refreshToken') refreshToken: string,
   ): Promise<Tokens> {
-    return this.authService.refreshTokens(userId, refreshToken);
+    return await this.authService.refreshTokens(userId, refreshToken);
   }
 }

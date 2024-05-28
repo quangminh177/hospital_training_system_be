@@ -28,7 +28,7 @@ export class CourseController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('')
-  getAllCourse(
+  async getAllCourse(
     @Query()
     querry: {
       page: number;
@@ -36,7 +36,7 @@ export class CourseController {
       keyword: string;
     },
   ) {
-    return this.courseService.getAllCourse(querry);
+    return await this.courseService.getAllCourse(querry);
   }
 
   //Get Course By Id
@@ -44,8 +44,8 @@ export class CourseController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
-  getCourseById(@Param('id', ParseIntPipe) courseId: number) {
-    return this.courseService.getCourseById(courseId);
+  async getCourseById(@Param('id', ParseIntPipe) courseId: number) {
+    return await this.courseService.getCourseById(courseId);
   }
 
   //Create Course
@@ -54,7 +54,7 @@ export class CourseController {
   @HttpCode(HttpStatus.CREATED)
   @Post('createCourse')
   async createCourse(@Body() dto: CreateCourseDto) {
-    return this.courseService.createCourse(dto);
+    return await this.courseService.createCourse(dto);
   }
 
   //Edit Course by Id
@@ -62,11 +62,11 @@ export class CourseController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Patch('editCourse/:id')
-  editCourseById(
+  async editCourseById(
     @Param('id', ParseIntPipe) courseId: number,
     @Body() dto: EditCourseDto,
   ) {
-    return this.courseService.editCourseById(courseId, dto);
+    return await this.courseService.editCourseById(courseId, dto);
   }
 
   //Delete Course by Id
@@ -74,7 +74,7 @@ export class CourseController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Delete('deleteCourse/:id')
-  deleteCourseById(@Param('id', ParseIntPipe) courseId: number) {
-    return this.courseService.deleteCourseById(courseId);
+  async deleteCourseById(@Param('id', ParseIntPipe) courseId: number) {
+    return await this.courseService.deleteCourseById(courseId);
   }
 }

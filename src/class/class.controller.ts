@@ -21,7 +21,6 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { StatusClass } from '@prisma/client';
-// import { Public } from 'src/common/decorators';
 
 @Controller('class')
 @ApiTags('class')
@@ -31,10 +30,9 @@ export class ClassController {
   //Get All Classes
   @Roles('ADMIN', 'UPPER')
   @UseGuards(RolesGuard)
-  // @Public()
   @HttpCode(HttpStatus.OK)
   @Get('')
-  getAllClass(
+  async getAllClass(
     @Query()
     querry: {
       page: number;
@@ -43,7 +41,7 @@ export class ClassController {
       keyword: string;
     },
   ) {
-    return this.classService.getAllClass(querry);
+    return await this.classService.getAllClass(querry);
   }
 
   //Get Class By Id
@@ -51,8 +49,8 @@ export class ClassController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
-  getClassById(@Param('id', ParseIntPipe) classId: number) {
-    return this.classService.getClassById(classId);
+  async getClassById(@Param('id', ParseIntPipe) classId: number) {
+    return await this.classService.getClassById(classId);
   }
 
   //Create Class
@@ -60,8 +58,8 @@ export class ClassController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post('createClass')
-  createClass(@Body() dto: CreateClassDto) {
-    return this.classService.createClass(dto);
+  async createClass(@Body() dto: CreateClassDto) {
+    return await this.classService.createClass(dto);
   }
 
   //Create Class With Excel
@@ -70,11 +68,11 @@ export class ClassController {
   @HttpCode(HttpStatus.CREATED)
   @Post('createClassWithExcel')
   @UseInterceptors(FileInterceptor('traineesFile'))
-  createClassWithExcel(
+  async createClassWithExcel(
     @Body() dto: CreateClassWithExcelDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.classService.createClassWithExcel(dto, file);
+    return await this.classService.createClassWithExcel(dto, file);
   }
 
   //Edit Class by Id
@@ -82,11 +80,11 @@ export class ClassController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Patch('editClass/:id')
-  editClassById(
+  async editClassById(
     @Param('id', ParseIntPipe) classId: number,
     @Body() dto: EditClassDto,
   ) {
-    return this.classService.editClassById(classId, dto);
+    return await this.classService.editClassById(classId, dto);
   }
 
   //Delete Class by Id
@@ -94,7 +92,7 @@ export class ClassController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Delete('deleteClass/:id')
-  deleteClassById(@Param('id', ParseIntPipe) classId: number) {
-    return this.classService.deleteClassById(classId);
+  async deleteClassById(@Param('id', ParseIntPipe) classId: number) {
+    return await this.classService.deleteClassById(classId);
   }
 }

@@ -28,7 +28,7 @@ export class QuestionController {
   @HttpCode(HttpStatus.OK)
   @Get('topic/:id')
   async getAllQuestion(@Param('id', ParseIntPipe) topicId: number) {
-    return this.questionService.getQuestionByTopicId(topicId);
+    return await this.questionService.getQuestionByTopicId(topicId);
   }
 
   //Get Question By Id
@@ -37,7 +37,7 @@ export class QuestionController {
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
   async getQuestionById(@Param('id', ParseIntPipe) questionId: number) {
-    return this.questionService.getQuestionById(questionId);
+    return await this.questionService.getQuestionById(questionId);
   }
 
   //Create Question
@@ -46,7 +46,7 @@ export class QuestionController {
   @HttpCode(HttpStatus.CREATED)
   @Post('createQuestion')
   async createQuestion(@Body() dto: CreateQuestionDto) {
-    return this.questionService.createQuestion(dto);
+    return await this.questionService.createQuestion(dto);
   }
 
   //Edit Question by Id
@@ -58,7 +58,7 @@ export class QuestionController {
     @Param('id', ParseIntPipe) questionId: number,
     @Body() dto: EditQuestionDto,
   ) {
-    return this.questionService.editQuestionById(questionId, dto);
+    return await this.questionService.editQuestionById(questionId, dto);
   }
 
   //Delete Question by Id
@@ -67,6 +67,6 @@ export class QuestionController {
   @HttpCode(HttpStatus.OK)
   @Delete('deleteQuestion/:id')
   async deleteQuestionById(@Param('id', ParseIntPipe) questionId: number) {
-    return this.questionService.deleteQuestionById(questionId);
+    return await this.questionService.deleteQuestionById(questionId);
   }
 }

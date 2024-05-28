@@ -24,7 +24,7 @@ export class ClassService {
       const take: number = size;
       const skip: number = (page - 1) * size;
 
-      const allClasses = this.prisma.class.findMany({
+      const allClasses = await this.prisma.class.findMany({
         take: +take,
         skip: skip,
         where: {
@@ -92,12 +92,6 @@ export class ClassService {
 
       // Create ClassUser(trainee)
       for (const trainee of dto.trainees) {
-        //   const foundTrainee = await this.prisma.user.findUnique({
-        //     where: {
-        //       email: trainee.email,
-        //     },
-        //   });
-
         await this.prisma.classUser.create({
           data: {
             user: {

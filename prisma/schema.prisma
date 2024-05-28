@@ -11,40 +11,34 @@ model User {
   id                    Int                    @id @default(autoincrement())
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
-  isDeleted             Boolean                @default(false)
   email                 String                 @unique
   hash                  String
   firstName             String
   lastName              String
-  role                  Role                  
-  job                   Job                    
-  phone                 String                @unique
+  role                  Role
+  phone                 String                 @unique
   dob                   DateTime
   image                 String?
   gender                Gender
   departmentId          Int
+  isDeleted             Boolean                @default(false)
   hashedRt              String?
+  job                   Job
   assignmentSubmissions AssignmentSubmission[]
   classUsers            ClassUser[]
+  curriculumDetails     CurriculumDetail[]
   quizAttempts          QuizAttempt[]
   topicGrades           TopicGrade[]
   department            Department             @relation(fields: [departmentId], references: [id])
-  curriculumDetails     CurriculumDetail[]
 
   @@map("users")
 }
 
-enum Job {
-  Doctor
-  Nurse
-  Intern
-}
-
 model Class {
-  id              Int           @id @default(autoincrement())
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  isDeleted       Boolean       @default(false)
+  id              Int          @id @default(autoincrement())
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  isDeleted       Boolean      @default(false)
   courseId        Int
   className       String
   startDate       DateTime
@@ -53,36 +47,26 @@ model Class {
   maxQuantity     Int
   allowedRegister Boolean
   quantity        Int?
-  status          StatusClass?   @default(AWAITING_APPROVAL)
+  status          StatusClass? @default(AWAITING_APPROVAL)
   curriculumId    Int
   classUsers      ClassUser[]
-  course          Course        @relation(fields: [courseId], references: [id])
+  course          Course       @relation(fields: [courseId], references: [id])
+  curriculum      Curriculum   @relation(fields: [curriculumId], references: [id])
   schedules       Schedule[]
-  curriculum      Curriculum    @relation(fields: [curriculumId], references: [id])
 
   @@map("classes")
 }
 
-enum DayInWeek {
-  Monday
-  Tuesday
-  Wednesday
-  Thursday
-  Friday
-  Saturday
-  Sunday
-}
-
 model Schedule {
-  id              Int           @id @default(autoincrement())
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  isDeleted       Boolean       @default(false)
-  classId         Int
-  class           Class         @relation(fields: [classId], references: [id])
-  schedule        DayInWeek 
-  startTime       String
-  endTime         String
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  isDeleted Boolean   @default(false)
+  classId   Int
+  schedule  DayInWeek
+  startTime String
+  endTime   String
+  class     Class     @relation(fields: [classId], references: [id])
 
   @@map("schedules")
 }
@@ -109,52 +93,52 @@ model Department {
   isDeleted   Boolean  @default(false)
   name        String
   description String?
-  staff       User[]
   courses     Course[]
+  staff       User[]
 
   @@map("departments")
 }
 
 model Course {
-  id                   Int                   @id @default(autoincrement())
-  createdAt            DateTime              @default(now())
-  updatedAt            DateTime              @updatedAt
-  isDeleted            Boolean               @default(false)
-  departmentId         Int
-  courseName           String
-  description          String?
-  credit               Decimal?
-  totalSession         Int?
-  classes              Class[]
-  topics               Topic[]
-  department           Department           @relation(fields: [departmentId], references: [id])
+  id           Int        @id @default(autoincrement())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  isDeleted    Boolean    @default(false)
+  courseName   String
+  description  String?
+  credit       Decimal?
+  totalSession Int?
+  departmentId Int
+  classes      Class[]
+  department   Department @relation(fields: [departmentId], references: [id])
+  topics       Topic[]
 
   @@map("courses")
 }
 
 model Curriculum {
-  id                   Int                   @id @default(autoincrement())
-  createdAt            DateTime              @default(now())
-  updatedAt            DateTime              @updatedAt
-  isDeleted            Boolean               @default(false)
-  curriculumName       String
-  description          String?
-  duration             String
-  classes              Class[]
-  curriculumDetails    CurriculumDetail[]
+  id                Int                @id @default(autoincrement())
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  isDeleted         Boolean            @default(false)
+  curriculumName    String
+  description       String?
+  duration          String
+  classes           Class[]
+  curriculumDetails CurriculumDetail[]
 
   @@map("curriculums")
 }
 
 model CurriculumDetail {
-  id                   Int                   @id @default(autoincrement())
-  createdAt            DateTime              @default(now())
-  updatedAt            DateTime              @updatedAt
-  isDeleted            Boolean               @default(false)
-  curriculumId         Int
-  userId               Int
-  curriculum           Curriculum            @relation(fields: [curriculumId], references: [id])
-  user                 User                  @relation(fields: [userId], references: [id])
+  id           Int        @id @default(autoincrement())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  isDeleted    Boolean    @default(false)
+  curriculumId Int
+  userId       Int
+  curriculum   Curriculum @relation(fields: [curriculumId], references: [id])
+  user         User       @relation(fields: [userId], references: [id])
 
   @@map("curriculum_detail")
 }
@@ -166,7 +150,7 @@ model Topic {
   isDeleted         Boolean            @default(false)
   courseId          Int
   topicName         String
-  topicNo           Int                
+  topicNo           Int
   description       String?
   topicWeight       Decimal
   quizWeight        Decimal
@@ -174,8 +158,8 @@ model Topic {
   assignments       Assignment[]
   externalResources ExternalResource[]
   questions         Question[]
-  topicGrades       TopicGrade[]
   quizzes           Quiz[]
+  topicGrades       TopicGrade[]
   course            Course             @relation(fields: [courseId], references: [id])
 
   @@map("topics")
@@ -215,7 +199,6 @@ model Assignment {
   id                    Int                    @id @default(autoincrement())
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
-  isDeleted   Boolean  @default(false)
   topicId               Int
   name                  String
   description           String
@@ -225,6 +208,7 @@ model Assignment {
   endAt                 DateTime
   dueAt                 DateTime
   isExpired             Boolean                @default(false)
+  isDeleted             Boolean                @default(false)
   assignmentSubmissions AssignmentSubmission[]
   topic                 Topic                  @relation(fields: [topicId], references: [id])
   attachments           Attachment[]
@@ -236,7 +220,7 @@ model Attachment {
   id                     Int                  @id @default(autoincrement())
   createdAt              DateTime             @default(now())
   updatedAt              DateTime             @updatedAt
- isDeleted   Boolean  @default(false)
+  isDeleted              Boolean              @default(false)
   assignmentId           Int
   assignmentSubmissionId Int
   name                   String
@@ -253,7 +237,7 @@ model AssignmentSubmission {
   id                         Int                        @id @default(autoincrement())
   createdAt                  DateTime                   @default(now())
   updatedAt                  DateTime                   @updatedAt
-  isDeleted   Boolean  @default(false)
+  isDeleted                  Boolean                    @default(false)
   assignmentId               Int
   userId                     Int
   grade                      Decimal
@@ -270,11 +254,11 @@ model Question {
   createdAt            DateTime            @default(now())
   updatedAt            DateTime            @updatedAt
   isDeleted            Boolean             @default(false)
-  level                Level
+  topicId              Int
   questionName         String
+  level                Level
   answers              Answer[]
   topic                Topic               @relation(fields: [topicId], references: [id])
-  topicId              Int
   quiz_attempt_details QuizAttemptDetail[]
   quiz_details         QuizDetail[]
 
@@ -296,32 +280,35 @@ model Answer {
 }
 
 model Quiz {
-  id           Int           @id @default(autoincrement())
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  isDeleted    Boolean  @default(false)
-  topicId      Int
-  quizName     String
-  timeLimit    String
-  weight       Decimal
-  startAt      DateTime
-  endAt        DateTime
-  quizAttempts QuizAttempt[]
-  quizDetails  QuizDetail[]
-  topic     Topic @relation(fields: [topicId], references: [id])
+  id             Int           @id @default(autoincrement())
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  isDeleted      Boolean       @default(false)
+  quizName       String
+  timeLimit      String
+  weight         Decimal
+  startAt        DateTime
+  endAt          DateTime
+  topicId        Int
+  isOriginal     Boolean       @default(true)
+  originalQuizId Int?
+  quizAttempts   QuizAttempt[]
+  quizDetails    QuizDetail[]
+  topic          Topic         @relation(fields: [topicId], references: [id])
 
   @@map("quizzes")
 }
 
 model QuizDetail {
-  id         Int      @id @default(autoincrement())
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  isDeleted   Boolean  @default(false)
-  questionId Int
-  quizId     Int
-  question   Question @relation(fields: [questionId], references: [id])
-  quiz       Quiz     @relation(fields: [quizId], references: [id])
+  id            Int      @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  isDeleted     Boolean  @default(false)
+  questionId    Int
+  quizId        Int
+  orderOfAnswer String
+  question      Question @relation(fields: [questionId], references: [id])
+  quiz          Quiz     @relation(fields: [quizId], references: [id])
 
   @@map("quiz_detail")
 }
@@ -330,10 +317,10 @@ model QuizAttempt {
   id                 Int                 @id @default(autoincrement())
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
-  isDeleted   Boolean  @default(false)
+  isDeleted          Boolean             @default(false)
   userId             Int
   quizId             Int
-  grade              Decimal
+  grade              Decimal?
   startAt            DateTime
   endAt              DateTime
   quiz               Quiz                @relation(fields: [quizId], references: [id])
@@ -347,16 +334,32 @@ model QuizAttemptDetail {
   id            Int         @id @default(autoincrement())
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
-  isDeleted   Boolean  @default(false)
+  isDeleted     Boolean     @default(false)
   questionId    Int
   quizAttemptId Int
   questionNo    Int
-  chosenAnswer  String
   orderOfAnswer String
+  chosenAnswer  Int[]
   question      Question    @relation(fields: [questionId], references: [id])
   quizAttempt   QuizAttempt @relation(fields: [quizAttemptId], references: [id])
 
   @@map("quiz_attempt_detail")
+}
+
+enum Job {
+  Doctor
+  Nurse
+  Intern
+}
+
+enum DayInWeek {
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+  Sunday
 }
 
 enum Role {

@@ -19,7 +19,7 @@ export class CurriculumService {
 
       const take: number = size;
       const skip: number = (page - 1) * size;
-      const allCurriculums = this.prisma.curriculum.findMany({
+      const allCurriculums = await this.prisma.curriculum.findMany({
         take: +take,
         skip: skip,
         where: {

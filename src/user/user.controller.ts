@@ -13,7 +13,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Role, User } from '@prisma/client';
-import { GetCurrentUser, GetCurrentUserId } from '../common/decorators';
+import { GetCurrentUser } from '../common/decorators';
 import { UserService } from './user.service';
 import { EditUserDto } from './dto';
 import { Tokens } from 'src/auth/types';
@@ -35,8 +35,8 @@ export class UserController {
 
   @Patch('profile/editProfile')
   @HttpCode(HttpStatus.OK)
-  editProfile(@GetCurrentUserId() userId: number, @Body() dto: EditUserDto) {
-    return this.userService.editProfile(userId, dto);
+  editProfile(@GetCurrentUser() user: User, @Body() dto: EditUserDto) {
+    return this.userService.editProfile(user, dto);
   }
 
   @Roles('ADMIN')

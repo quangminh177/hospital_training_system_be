@@ -24,13 +24,30 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
 export class TopicController {
   constructor(private topicService: TopicService) {}
 
+  //Get all Topics
+  // @Public()
+  @Roles('TRAINER')
+  @UseGuards(RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get('')
+  getAllTopic(
+    @Query()
+    querry: {
+      page: number;
+      size: number;
+      keyword: string;
+    },
+  ) {
+    return this.topicService.getAllTopics(querry);
+  }
+
   //Get Topics By CourseId
   // @Public()
   @Roles('TRAINER')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('course/:id')
-  getAllTopic(
+  getTopicByCourseId(
     @Param('id', ParseIntPipe) courseId: number,
     @Query()
     querry: {

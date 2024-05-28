@@ -4,7 +4,7 @@ import { EditUserDto } from './dto';
 import { Tokens } from 'src/auth/types';
 import { AuthService } from 'src/auth/auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { Role } from '@prisma/client';
+import { Role, User } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -70,11 +70,11 @@ export class UserService {
     }
   }
 
-  async editProfile(userId: number, dto: EditUserDto) {
+  async editProfile(userDetail: User, dto: EditUserDto) {
     try {
       const user = await this.prisma.user.update({
         where: {
-          id: userId,
+          id: userDetail.id,
         },
         data: {
           ...dto,
