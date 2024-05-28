@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Answer, PrismaClient, User } from '@prisma/client';
+import { Answer, Prisma, PrismaClient, User } from '@prisma/client';
 import prismaRandom from 'prisma-extension-random';
 import { CreateQuizDto, EditQuizDto } from './dto';
 import { AttemptQuizDto } from './dto/attempt-quiz.dto';
@@ -343,6 +343,39 @@ export class QuizService {
         }
       }
     }
+
+    const gradeMax = 10;
+    const gradePerQuestion = new Prisma.Decimal(gradeMax / questions.length);
+
+    for (const quizAttemptDetail of allQuizAttemptDetail) {
+      let count = 0;
+      for (const chosenAnswer of quizAttemptDetail.chosenAnswer) {
+        const answer = await this.prisma.answer.findUnique({
+          where: {
+            id: chosenAnswer,
+          },
+        });
+
+        if (
+          answer.isCorrect &&
+          answer.questionId === quizAttemptDetail.questionId
+        ) {
+          count++;
+        }
+      }
+      if (count === quizAttemptDetail.chosenAnswer.length) {
+        quizAttempt.grade = quizAttempt.grade.plus(gradePerQuestion);
+      }
+    }
+
+    await this.prisma.quizAttempt.update({
+      where: {
+        id: quizAttempt.id,
+      },
+      data: {
+        grade: quizAttempt.grade,
+      },
+    });
 
     return { ...quizAttempt, allQuizAttemptDetail };
   }
