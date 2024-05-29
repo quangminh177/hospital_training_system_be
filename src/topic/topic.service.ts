@@ -1,6 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTopicDto, EditTopicDto } from './dto';
+import { User } from '@prisma/client';
+import { Decimal } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class TopicService {
@@ -15,7 +17,7 @@ export class TopicService {
 
       const take: number = size;
       const skip: number = (page - 1) * size;
-      const allTopics = this.prisma.topic.findMany({
+      const allTopics = await this.prisma.topic.findMany({
         take: +take,
         skip: skip,
         where: {
@@ -45,7 +47,7 @@ export class TopicService {
 
       const take: number = size;
       const skip: number = (page - 1) * size;
-      const allTopics = this.prisma.topic.findMany({
+      const allTopics = await this.prisma.topic.findMany({
         take: +take,
         skip: skip,
         where: {
@@ -131,5 +133,77 @@ export class TopicService {
     } catch (error) {
       throw error;
     }
+  }
+
+  //Get Topic Grade of User
+  async getGradeOfTopic(user: User, topicId: number) {
+    //Check if Topic Grade exist
+    const topicGradeExist = await this.prisma.topicGrade.findMany({
+      where: {
+        userId: user.id,
+        topicId: topicId,
+      },
+    });
+
+    if (topicGradeExist.length === 0) {
+      await this.prisma.topicGrade.create({
+        data: {
+          userId: user.id,
+          topicId: topicId,
+        },
+      });
+    }
+
+    //Get all QuizAttempt of User
+    const allQuizAttempts = await this.prisma.quizAttempt.findMany({
+      where: {
+        userId: user.id,
+      },
+    });
+
+    const allTopicQuizAttempts = [];
+
+    for (const quizAttempt of allQuizAttempts) {
+      const quiz = await this.prisma.quiz.findUnique({
+        where: {
+          id: quizAttempt.quizId,
+        },
+      });
+
+      const quizWeight = quiz.weight;
+      const quizAttemptAndWeight = { ...quizAttempt, quizWeight };
+
+      if (quiz.topicId === topicId)
+        allTopicQuizAttempts.push(quizAttemptAndWeight);
+    }
+
+    let totalTopicQuizGrade = new Decimal(0);
+    for (const topicQuizAttempt of allTopicQuizAttempts) {
+      totalTopicQuizGrade = totalTopicQuizGrade.plus(
+        topicQuizAttempt.grade.times(topicQuizAttempt.quizWeight),
+      );
+    }
+
+    const quizGrade = totalTopicQuizGrade.dividedBy(
+      allTopicQuizAttempts.length,
+    );
+
+    let topicGrade = await this.prisma.topicGrade.findFirst({
+      where: {
+        userId: user.id,
+        topicId: topicId,
+      },
+    });
+
+    topicGrade = await this.prisma.topicGrade.update({
+      where: topicGrade,
+      data: {
+        ...topicGrade,
+        quizGrade,
+        grade: quizGrade,
+      },
+    });
+
+    return topicGrade;
   }
 }

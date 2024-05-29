@@ -18,6 +18,8 @@ import { ApiTags } from '@nestjs/swagger';
 // import { Public } from 'src/common/decorators';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { RolesGuard } from 'src/common/guards/roles.guard';
+import { GetCurrentUser } from 'src/common/decorators';
+import { User } from '@prisma/client';
 
 @Controller('topic')
 @ApiTags('topic')
@@ -30,7 +32,7 @@ export class TopicController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('')
-  getAllTopic(
+  async getAllTopic(
     @Query()
     querry: {
       page: number;
@@ -38,7 +40,7 @@ export class TopicController {
       keyword: string;
     },
   ) {
-    return this.topicService.getAllTopics(querry);
+    return await this.topicService.getAllTopics(querry);
   }
 
   //Get Topics By CourseId
@@ -47,7 +49,7 @@ export class TopicController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('course/:id')
-  getTopicByCourseId(
+  async getTopicByCourseId(
     @Param('id', ParseIntPipe) courseId: number,
     @Query()
     querry: {
@@ -56,7 +58,7 @@ export class TopicController {
       keyword: string;
     },
   ) {
-    return this.topicService.getTopicByCourseId(courseId, querry);
+    return await this.topicService.getTopicByCourseId(courseId, querry);
   }
 
   //Get Topic By Id
@@ -65,8 +67,8 @@ export class TopicController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
-  getTopicById(@Param('id', ParseIntPipe) topicId: number) {
-    return this.topicService.getTopicById(topicId);
+  async getTopicById(@Param('id', ParseIntPipe) topicId: number) {
+    return await this.topicService.getTopicById(topicId);
   }
 
   //Create Topic
@@ -76,7 +78,7 @@ export class TopicController {
   @HttpCode(HttpStatus.CREATED)
   @Post('createTopic')
   async createTopic(@Body() dto: CreateTopicDto) {
-    return this.topicService.createTopic(dto);
+    return await this.topicService.createTopic(dto);
   }
 
   //Edit Topic by Id
@@ -85,11 +87,11 @@ export class TopicController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Patch('editTopic/:id')
-  editTopicById(
+  async editTopicById(
     @Param('id', ParseIntPipe) topicId: number,
     @Body() dto: EditTopicDto,
   ) {
-    return this.topicService.editTopicById(topicId, dto);
+    return await this.topicService.editTopicById(topicId, dto);
   }
 
   //Delete Topic by Id
@@ -98,7 +100,19 @@ export class TopicController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Delete('deleteTopic/:id')
-  deleteTopicById(@Param('id', ParseIntPipe) topicId: number) {
-    return this.topicService.deleteTopicById(topicId);
+  async deleteTopicById(@Param('id', ParseIntPipe) topicId: number) {
+    return await this.topicService.deleteTopicById(topicId);
+  }
+
+  //Get Topic Grade of User
+  @Roles('TRAINEE')
+  @UseGuards(RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get('grade/:id')
+  async getGradeOfTopic(
+    @GetCurrentUser() user: User,
+    @Param('id', ParseIntPipe) topicId: number,
+  ) {
+    return await this.topicService.getGradeOfTopic(user, topicId);
   }
 }

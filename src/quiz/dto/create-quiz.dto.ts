@@ -18,8 +18,8 @@ export class CreateQuizDto {
   quizName: string;
 
   @IsNotEmpty()
-  @IsString()
-  timeLimit: string;
+  @IsNumber()
+  timeLimit: number;
 
   @IsNotEmpty()
   @IsNumber()

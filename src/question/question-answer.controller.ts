@@ -27,7 +27,7 @@ export class QuestionController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('topic/:id')
-  async getAllQuestion(@Param('id', ParseIntPipe) topicId: number) {
+  async getQuestionByTopicId(@Param('id', ParseIntPipe) topicId: number) {
     return await this.questionService.getQuestionByTopicId(topicId);
   }
 

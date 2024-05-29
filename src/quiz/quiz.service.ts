@@ -302,82 +302,96 @@ export class QuizService {
   async attemptQuiz(user: User, quizId: number, dto: AttemptQuizDto) {
     //Find quiz to attempt
     const quiz = await this.getQuizById(quizId);
-    //Create quiz attempt
-    const quizAttempt = await this.prisma.quizAttempt.create({
-      data: {
-        userId: user.id,
-        quizId: quizId,
-        startAt: quiz.startAt,
-        endAt: quiz.endAt,
-        grade: 0,
-      },
-    });
 
-    //Get QuizDetails
-    const quizDetails = await this.prisma.quizDetail.findMany({
+    //Find if this user has attempted this quiz
+    const hasAttemptedQuiz = await this.prisma.quizAttempt.findMany({
       where: {
-        quizId: quizId,
+        userId: user.id,
+        quizId: quiz.id,
         isDeleted: false,
       },
     });
 
-    const allQuizAttemptDetail = [];
+    if (hasAttemptedQuiz.length === 0) {
+      //Create quiz attempt
+      const quizAttempt = await this.prisma.quizAttempt.create({
+        data: {
+          userId: user.id,
+          quizId: quizId,
+          startAt: quiz.startAt,
+          endAt: quiz.endAt,
+          grade: 0,
+        },
+      });
 
-    const questions = quiz.allQuestionsOfQuiz;
+      //Get QuizDetails
+      const quizDetails = await this.prisma.quizDetail.findMany({
+        where: {
+          quizId: quizId,
+          isDeleted: false,
+        },
+      });
 
-    for (const attemptQuestion of dto.attemptQuestion) {
-      for (let i = 0; i < questions.length; i++) {
-        if (attemptQuestion.questionId === questions[i].id) {
-          //Create QuizAttemptDetail
-          const quizAttemptDetail = await this.prisma.quizAttemptDetail.create({
-            data: {
-              quizAttemptId: quizAttempt.id,
-              questionId: questions[i].id,
-              questionNo: i + 1,
-              chosenAnswer: attemptQuestion.chosenAnswerId,
-              orderOfAnswer: quizDetails[i].orderOfAnswer,
+      const allQuizAttemptDetail = [];
+
+      const questions = quiz.allQuestionsOfQuiz;
+
+      for (const attemptQuestion of dto.attemptQuestion) {
+        for (let i = 0; i < questions.length; i++) {
+          if (attemptQuestion.questionId === questions[i].id) {
+            //Create QuizAttemptDetail
+            const quizAttemptDetail =
+              await this.prisma.quizAttemptDetail.create({
+                data: {
+                  quizAttemptId: quizAttempt.id,
+                  questionId: questions[i].id,
+                  questionNo: i + 1,
+                  chosenAnswer: attemptQuestion.chosenAnswerId,
+                  orderOfAnswer: quizDetails[i].orderOfAnswer,
+                },
+              });
+
+            allQuizAttemptDetail.push(quizAttemptDetail);
+          }
+        }
+      }
+
+      const gradeMax = 10;
+      const gradePerQuestion = new Prisma.Decimal(gradeMax / questions.length);
+
+      for (const quizAttemptDetail of allQuizAttemptDetail) {
+        let count = 0;
+        for (const chosenAnswer of quizAttemptDetail.chosenAnswer) {
+          const answer = await this.prisma.answer.findUnique({
+            where: {
+              id: chosenAnswer,
             },
           });
 
-          allQuizAttemptDetail.push(quizAttemptDetail);
+          if (
+            answer.isCorrect &&
+            answer.questionId === quizAttemptDetail.questionId
+          ) {
+            count++;
+          }
+        }
+        if (count === quizAttemptDetail.chosenAnswer.length) {
+          quizAttempt.grade = quizAttempt.grade.plus(gradePerQuestion);
         }
       }
+
+      await this.prisma.quizAttempt.update({
+        where: {
+          id: quizAttempt.id,
+        },
+        data: {
+          grade: quizAttempt.grade,
+        },
+      });
+
+      return { ...quizAttempt, allQuizAttemptDetail };
     }
-
-    const gradeMax = 10;
-    const gradePerQuestion = new Prisma.Decimal(gradeMax / questions.length);
-
-    for (const quizAttemptDetail of allQuizAttemptDetail) {
-      let count = 0;
-      for (const chosenAnswer of quizAttemptDetail.chosenAnswer) {
-        const answer = await this.prisma.answer.findUnique({
-          where: {
-            id: chosenAnswer,
-          },
-        });
-
-        if (
-          answer.isCorrect &&
-          answer.questionId === quizAttemptDetail.questionId
-        ) {
-          count++;
-        }
-      }
-      if (count === quizAttemptDetail.chosenAnswer.length) {
-        quizAttempt.grade = quizAttempt.grade.plus(gradePerQuestion);
-      }
-    }
-
-    await this.prisma.quizAttempt.update({
-      where: {
-        id: quizAttempt.id,
-      },
-      data: {
-        grade: quizAttempt.grade,
-      },
-    });
-
-    return { ...quizAttempt, allQuizAttemptDetail };
+    return false;
   }
 
   stringToNumberArray = (str: string) =>

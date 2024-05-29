@@ -11,8 +11,8 @@ export class EditQuizDto {
   quizName?: string;
 
   @IsOptional()
-  @IsString()
-  timeLimit?: string;
+  @IsNumber()
+  timeLimit?: number;
 
   @IsOptional()
   @IsNumber()
