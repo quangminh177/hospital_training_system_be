@@ -39,8 +39,8 @@ export class QuizController {
   @Roles('TRAINER')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
-  @Get('/:id')
-  async getQuizById(@Param('id', ParseIntPipe) quizId: number) {
+  @Get('/:quizId')
+  async getQuizById(@Param('quizId', ParseIntPipe) quizId: number) {
     return await this.quizService.getQuizById(quizId);
   }
 

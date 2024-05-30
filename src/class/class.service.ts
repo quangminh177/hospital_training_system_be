@@ -1,8 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateClassDto, CreateClassWithExcelDto, EditClassDto } from './dto';
+import {
+  ClassQueryDto,
+  CreateClassDto,
+  CreateClassWithExcelDto,
+  EditClassDto,
+} from './dto';
 import { PrismaService } from '../prisma/prisma.service';
 import * as exceljs from 'exceljs';
-import { Schedule, StatusClass } from '@prisma/client';
+import { Schedule } from '@prisma/client';
 import { EditUserDto } from 'src/user/dto';
 
 @Injectable()
@@ -10,32 +15,42 @@ export class ClassService {
   constructor(private prisma: PrismaService) {}
 
   //Get all Class
-  async getAllClass(querry: {
-    page: number;
-    size: number;
-    status: StatusClass;
-    keyword: string;
-  }) {
+  async getAllClass(query: ClassQueryDto) {
     try {
-      const { page, size, status, keyword } = querry;
+      const { page, size, status, keyword } = query;
       if (page <= 0)
         throw new HttpException('Invalid input', HttpStatus.BAD_REQUEST);
 
-      const take: number = size;
-      const skip: number = (page - 1) * size;
+      let allClasses;
 
-      const allClasses = await this.prisma.class.findMany({
-        take: +take,
-        skip: skip,
-        where: {
-          isDeleted: false,
-          className: {
-            contains: keyword,
-            mode: 'insensitive',
+      if (page && size) {
+        const take = size;
+        const skip = (page - 1) * size;
+
+        allClasses = await this.prisma.class.findMany({
+          where: {
+            isDeleted: false,
+            className: {
+              contains: keyword,
+              mode: 'insensitive',
+            },
+            status: status,
           },
-          status: status,
-        },
-      });
+          take: +take,
+          skip: skip,
+        });
+      } else {
+        allClasses = await this.prisma.class.findMany({
+          where: {
+            isDeleted: false,
+            className: {
+              contains: keyword,
+              mode: 'insensitive',
+            },
+            status: status,
+          },
+        });
+      }
 
       return allClasses;
     } catch (error) {

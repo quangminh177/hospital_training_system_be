@@ -16,11 +16,15 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ClassService } from './class.service';
-import { CreateClassDto, CreateClassWithExcelDto, EditClassDto } from './dto';
+import {
+  ClassQueryDto,
+  CreateClassDto,
+  CreateClassWithExcelDto,
+  EditClassDto,
+} from './dto';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { RolesGuard } from 'src/common/guards/roles.guard';
-import { StatusClass } from '@prisma/client';
 
 @Controller('class')
 @ApiTags('class')
@@ -34,14 +38,9 @@ export class ClassController {
   @Get('')
   async getAllClass(
     @Query()
-    querry: {
-      page: number;
-      size: number;
-      status: StatusClass;
-      keyword: string;
-    },
+    query: ClassQueryDto,
   ) {
-    return await this.classService.getAllClass(querry);
+    return await this.classService.getAllClass(query);
   }
 
   //Get Class By Id
