@@ -24,22 +24,37 @@ export class UserService {
       if (page <= 0)
         throw new HttpException('Invalid input', HttpStatus.BAD_REQUEST);
 
-      const take: number = size;
-      const skip: number = (page - 1) * size;
-      const users = await this.prisma.user.findMany({
-        take: +take,
-        skip: skip,
-        where: {
-          isDeleted: false,
-          email: {
-            contains: keyword,
-            mode: 'insensitive',
-          },
-          role: role,
-        },
-      });
+      let users: User[];
 
-      users.map((user) => delete user.hashedRt);
+      if (page && size) {
+        const take = size;
+        const skip = (page - 1) * size;
+        users = await this.prisma.user.findMany({
+          take: +take,
+          skip: skip,
+          where: {
+            isDeleted: false,
+            email: {
+              contains: keyword,
+              mode: 'insensitive',
+            },
+            role: role,
+          },
+        });
+
+        users.map((user) => delete user.hashedRt);
+      } else {
+        users = await this.prisma.user.findMany({
+          where: {
+            isDeleted: false,
+            email: {
+              contains: keyword,
+              mode: 'insensitive',
+            },
+            role: role,
+          },
+        });
+      }
       return users;
     } catch (error) {
       throw error;

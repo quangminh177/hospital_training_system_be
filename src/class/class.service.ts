@@ -7,7 +7,7 @@ import {
 } from './dto';
 import { PrismaService } from '../prisma/prisma.service';
 import * as exceljs from 'exceljs';
-import { Schedule } from '@prisma/client';
+import { Class, Schedule } from '@prisma/client';
 import { EditUserDto } from 'src/user/dto';
 
 @Injectable()
@@ -21,7 +21,7 @@ export class ClassService {
       if (page <= 0)
         throw new HttpException('Invalid input', HttpStatus.BAD_REQUEST);
 
-      let allClasses;
+      let allClasses: Class[];
 
       if (page && size) {
         const take = size;

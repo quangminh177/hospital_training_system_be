@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTopicDto, EditTopicDto } from './dto';
-import { User } from '@prisma/client';
+import { Topic, User } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 
 @Injectable()
@@ -15,19 +15,33 @@ export class TopicService {
       if (page <= 0)
         throw new HttpException('Invalid input', HttpStatus.BAD_REQUEST);
 
-      const take: number = size;
-      const skip: number = (page - 1) * size;
-      const allTopics = await this.prisma.topic.findMany({
-        take: +take,
-        skip: skip,
-        where: {
-          isDeleted: false,
-          topicName: {
-            contains: keyword,
-            mode: 'insensitive',
+      let allTopics: Topic[];
+
+      if (page && size) {
+        const take = size;
+        const skip = (page - 1) * size;
+        allTopics = await this.prisma.topic.findMany({
+          take: +take,
+          skip: skip,
+          where: {
+            isDeleted: false,
+            topicName: {
+              contains: keyword,
+              mode: 'insensitive',
+            },
           },
-        },
-      });
+        });
+      } else {
+        allTopics = await this.prisma.topic.findMany({
+          where: {
+            isDeleted: false,
+            topicName: {
+              contains: keyword,
+              mode: 'insensitive',
+            },
+          },
+        });
+      }
 
       return allTopics;
     } catch (error) {
@@ -45,20 +59,35 @@ export class TopicService {
       if (page <= 0)
         throw new HttpException('Invalid input', HttpStatus.BAD_REQUEST);
 
-      const take: number = size;
-      const skip: number = (page - 1) * size;
-      const allTopics = await this.prisma.topic.findMany({
-        take: +take,
-        skip: skip,
-        where: {
-          isDeleted: false,
-          courseId: courseId,
-          topicName: {
-            contains: keyword,
-            mode: 'insensitive',
+      let allTopics: Topic[];
+
+      if (page && size) {
+        const take = size;
+        const skip = (page - 1) * size;
+        allTopics = await this.prisma.topic.findMany({
+          take: +take,
+          skip: skip,
+          where: {
+            isDeleted: false,
+            courseId: courseId,
+            topicName: {
+              contains: keyword,
+              mode: 'insensitive',
+            },
           },
-        },
-      });
+        });
+      } else {
+        allTopics = await this.prisma.topic.findMany({
+          where: {
+            isDeleted: false,
+            courseId: courseId,
+            topicName: {
+              contains: keyword,
+              mode: 'insensitive',
+            },
+          },
+        });
+      }
 
       return allTopics;
     } catch (error) {

@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCourseDto, EditCourseDto } from './dto';
+import { Course } from '@prisma/client';
 
 @Injectable()
 export class CourseService {
@@ -13,20 +14,34 @@ export class CourseService {
       if (page <= 0)
         throw new HttpException('Invalid input', HttpStatus.BAD_REQUEST);
 
-      const take: number = size;
-      const skip: number = (page - 1) * size;
+      let allCourses: Course[];
 
-      const allCourses = await this.prisma.course.findMany({
-        take: +take,
-        skip: skip,
-        where: {
-          isDeleted: false,
-          courseName: {
-            contains: keyword,
-            mode: 'insensitive',
+      if (page && size) {
+        const take = size;
+        const skip = (page - 1) * size;
+
+        allCourses = await this.prisma.course.findMany({
+          take: +take,
+          skip: skip,
+          where: {
+            isDeleted: false,
+            courseName: {
+              contains: keyword,
+              mode: 'insensitive',
+            },
           },
-        },
-      });
+        });
+      } else {
+        allCourses = await this.prisma.course.findMany({
+          where: {
+            isDeleted: false,
+            courseName: {
+              contains: keyword,
+              mode: 'insensitive',
+            },
+          },
+        });
+      }
 
       return allCourses;
     } catch (error) {

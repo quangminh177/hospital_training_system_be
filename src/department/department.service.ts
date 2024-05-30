@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateDepartmentDto, EditDepartmentDto } from './dto';
+import { Department } from '@prisma/client';
 
 @Injectable()
 export class DepartmentService {
@@ -17,19 +18,33 @@ export class DepartmentService {
       if (page <= 0)
         throw new HttpException('Invalid input', HttpStatus.BAD_REQUEST);
 
-      const take: number = size;
-      const skip: number = (page - 1) * size;
-      const allDepartments = await this.prisma.department.findMany({
-        take: +take,
-        skip: skip,
-        where: {
-          isDeleted: false,
-          name: {
-            contains: keyword,
-            mode: 'insensitive',
+      let allDepartments: Department[];
+
+      if (page && size) {
+        const take = size;
+        const skip = (page - 1) * size;
+        allDepartments = await this.prisma.department.findMany({
+          take: +take,
+          skip: skip,
+          where: {
+            isDeleted: false,
+            name: {
+              contains: keyword,
+              mode: 'insensitive',
+            },
           },
-        },
-      });
+        });
+      } else {
+        allDepartments = await this.prisma.department.findMany({
+          where: {
+            isDeleted: false,
+            name: {
+              contains: keyword,
+              mode: 'insensitive',
+            },
+          },
+        });
+      }
 
       return allDepartments;
     } catch (error) {

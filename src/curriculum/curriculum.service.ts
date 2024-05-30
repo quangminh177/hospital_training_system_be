@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCurriculumDto, EditCurriculumDto } from './dto';
+import { Curriculum } from '@prisma/client';
 
 @Injectable()
 export class CurriculumService {
@@ -17,19 +18,33 @@ export class CurriculumService {
       if (page <= 0)
         throw new HttpException('Invalid input', HttpStatus.BAD_REQUEST);
 
-      const take: number = size;
-      const skip: number = (page - 1) * size;
-      const allCurriculums = await this.prisma.curriculum.findMany({
-        take: +take,
-        skip: skip,
-        where: {
-          isDeleted: false,
-          curriculumName: {
-            contains: keyword,
-            mode: 'insensitive',
+      let allCurriculums: Curriculum[];
+
+      if (page && size) {
+        const take = size;
+        const skip = (page - 1) * size;
+        allCurriculums = await this.prisma.curriculum.findMany({
+          take: +take,
+          skip: skip,
+          where: {
+            isDeleted: false,
+            curriculumName: {
+              contains: keyword,
+              mode: 'insensitive',
+            },
           },
-        },
-      });
+        });
+      } else {
+        allCurriculums = await this.prisma.curriculum.findMany({
+          where: {
+            isDeleted: false,
+            curriculumName: {
+              contains: keyword,
+              mode: 'insensitive',
+            },
+          },
+        });
+      }
 
       return allCurriculums;
     } catch (error) {
