@@ -360,22 +360,31 @@ export class QuizService {
       const gradePerQuestion = new Prisma.Decimal(gradeMax / questions.length);
 
       for (const quizAttemptDetail of allQuizAttemptDetail) {
-        let count = 0;
-        for (const chosenAnswer of quizAttemptDetail.chosenAnswer) {
-          const answer = await this.prisma.answer.findUnique({
-            where: {
-              id: chosenAnswer,
-            },
-          });
+        // let count = 0;
+        const correctAnswers = await this.prisma.answer.findMany({
+          where: {
+            questionId: quizAttemptDetail.questionId,
+            isCorrect: true,
+          },
+          select: { id: true },
+        });
+        const arrayIdOfCorrectAnswers = [];
+        for (const correctAnswer of correctAnswers) {
+          const id = correctAnswer.id;
+          arrayIdOfCorrectAnswers.push(id);
+        }
 
-          if (
-            answer.isCorrect &&
-            answer.questionId === quizAttemptDetail.questionId
-          ) {
-            count++;
+        let isCorrect: boolean;
+
+        for (const idCorrectAnswer of arrayIdOfCorrectAnswers) {
+          for (const chosenAnswer of quizAttemptDetail.chosenAnswer) {
+            if (idCorrectAnswer.length === chosenAnswer.length) {
+              if (idCorrectAnswer === chosenAnswer) isCorrect = true;
+            } else isCorrect = false;
           }
         }
-        if (count === quizAttemptDetail.chosenAnswer.length) {
+
+        if (isCorrect) {
           quizAttempt.grade = quizAttempt.grade.plus(gradePerQuestion);
         }
       }

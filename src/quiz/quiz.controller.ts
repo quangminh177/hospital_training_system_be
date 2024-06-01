@@ -37,12 +37,20 @@ export class QuizController {
   }
 
   //Get Quiz By Id
-  @Roles('TRAINER')
+  @Roles('TRAINEE')
   @UseGuards(RolesGuard)
   @UseGuards(TimeRangeGuard)
   @HttpCode(HttpStatus.OK)
-  @Get('/:quizId')
-  async getQuizById(@Param('quizId', ParseIntPipe) quizId: number) {
+  @Get('/trainee/:quizId')
+  async traineeGetQuizById(@Param('quizId', ParseIntPipe) quizId: number) {
+    return await this.quizService.getQuizById(quizId);
+  }
+
+  @Roles('TRAINER')
+  @UseGuards(RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get('/trainer/:quizId')
+  async trainerGetQuizById(@Param('quizId', ParseIntPipe) quizId: number) {
     return await this.quizService.getQuizById(quizId);
   }
 

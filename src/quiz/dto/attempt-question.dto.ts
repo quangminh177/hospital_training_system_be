@@ -1,4 +1,10 @@
-import { ArrayMinSize, IsArray, IsNotEmpty, IsNumber } from 'class-validator';
+import {
+  ArrayMinSize,
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+} from 'class-validator';
 
 export class AttemptQuestionDto {
   @IsNotEmpty()
@@ -6,7 +12,7 @@ export class AttemptQuestionDto {
   questionId: number;
 
   @IsArray()
-  @IsNotEmpty()
-  @ArrayMinSize(1)
-  chosenAnswerId: Array<number>;
+  @IsOptional()
+  @ArrayMinSize(0)
+  chosenAnswerId?: Array<number>;
 }
