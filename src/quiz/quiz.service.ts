@@ -374,15 +374,31 @@ export class QuizService {
           arrayIdOfCorrectAnswers.push(id);
         }
 
-        let isCorrect: boolean;
+        const isCorrect = this.areArraysEqual(
+          arrayIdOfCorrectAnswers,
+          quizAttemptDetail.chosenAnswer,
+        );
 
-        for (const idCorrectAnswer of arrayIdOfCorrectAnswers) {
-          for (const chosenAnswer of quizAttemptDetail.chosenAnswer) {
-            if (idCorrectAnswer.length === chosenAnswer.length) {
-              if (idCorrectAnswer === chosenAnswer) isCorrect = true;
-            } else isCorrect = false;
-          }
-        }
+        // let isLengthEqual: boolean;
+        // let isCorrectAnswers: boolean[];
+
+        // if (
+        //   arrayIdOfCorrectAnswers.length ===
+        //   quizAttemptDetail.chosenAnswer.length
+        // ) {
+        //   isLengthEqual = true;
+        // } else isLengthEqual = false;
+
+        // for (let i = 0; i < arrayIdOfCorrectAnswers.length; i++) {
+        //   if (
+        //     arrayIdOfCorrectAnswers[i] === quizAttemptDetail.chosenAnswer[i]
+        //   ) {
+        //     isCorrectAnswers.push(true);
+        //   } else isCorrectAnswers.push(false);
+        // }
+        // const isCorrect = isCorrectAnswers.every(
+        //   (isCorrectAnswer) => isCorrectAnswer === true,
+        // );
 
         if (isCorrect) {
           quizAttempt.grade = quizAttempt.grade.plus(gradePerQuestion);
@@ -405,4 +421,20 @@ export class QuizService {
 
   stringToNumberArray = (str: string) =>
     str.split('').map((char) => Number(char));
+
+  areArraysEqual = (arr1: number[], arr2: number[]) => {
+    // Kiểm tra độ dài của hai mảng
+    if (arr1.length !== arr2.length) {
+      return false;
+    }
+
+    // So sánh từng phần tử
+    for (let i = 0; i < arr1.length; i++) {
+      if (arr1[i] !== arr2[i]) {
+        return false;
+      }
+    }
+
+    return true;
+  };
 }
