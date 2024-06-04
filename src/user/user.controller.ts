@@ -30,20 +30,22 @@ export class UserController {
   @Get('profile')
   @HttpCode(HttpStatus.OK)
   getProfile(@GetCurrentUser() user: User) {
+    delete user.hash;
+    delete user.hashedRt;
     return user;
   }
 
   @Patch('profile/editProfile')
   @HttpCode(HttpStatus.OK)
-  editProfile(@GetCurrentUser() user: User, @Body() dto: EditUserDto) {
-    return this.userService.editProfile(user, dto);
+  async editProfile(@GetCurrentUser() user: User, @Body() dto: EditUserDto) {
+    return await this.userService.editProfile(user, dto);
   }
 
   @Roles('ADMIN')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get()
-  getUsers(
+  async getUsers(
     @Query()
     querry: {
       page: number;
@@ -52,15 +54,15 @@ export class UserController {
       keyword: string;
     },
   ) {
-    return this.userService.getUsers(querry);
+    return await this.userService.getUsers(querry);
   }
 
   @Roles('ADMIN')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get(':id')
-  getUserById(@Param('id', ParseIntPipe) userId: number) {
-    return this.userService.getUserById(userId);
+  async getUserById(@Param('id', ParseIntPipe) userId: number) {
+    return await this.userService.getUserById(userId);
   }
 
   @Roles('ADMIN')
@@ -117,18 +119,18 @@ export class UserController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Patch('editUser/:id')
-  editUserById(
+  async editUserById(
     @Param('id', ParseIntPipe) userId: number,
     @Body() dto: EditUserDto,
   ) {
-    return this.userService.editUserById(userId, dto);
+    return await this.userService.editUserById(userId, dto);
   }
 
   @Roles('ADMIN')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Delete('deleteUser/:id')
-  deleteUserById(@Param('id', ParseIntPipe) userId: number) {
-    return this.userService.deleteUserById(userId);
+  async deleteUserById(@Param('id', ParseIntPipe) userId: number) {
+    return await this.userService.deleteUserById(userId);
   }
 }

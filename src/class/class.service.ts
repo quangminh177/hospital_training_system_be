@@ -7,7 +7,7 @@ import {
 } from './dto';
 import { PrismaService } from '../prisma/prisma.service';
 import * as exceljs from 'exceljs';
-import { Class, Schedule } from '@prisma/client';
+import { Class, Schedule, User } from '@prisma/client';
 import { EditUserDto } from 'src/user/dto';
 
 @Injectable()
@@ -69,6 +69,34 @@ export class ClassService {
       });
 
       return foundClass;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  //Get my Class
+  async getMyClass(user: User) {
+    try {
+      const classUsers = await this.prisma.classUser.findMany({
+        where: {
+          userId: user.id,
+          isDeleted: false,
+        },
+      });
+      console.log(classUsers);
+
+      const classes: Class[] = [];
+
+      for (const classUser of classUsers) {
+        const foundClass = await this.prisma.class.findUnique({
+          where: {
+            id: classUser.classId,
+          },
+        });
+        classes.push(foundClass);
+      }
+
+      return classes;
     } catch (error) {
       throw error;
     }

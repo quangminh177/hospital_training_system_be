@@ -254,6 +254,11 @@ export class QuizService {
         }
       }
 
+      //Shuffle original Quiz to Many Quizzes
+      for (let i = 0; i < dto.numberOfQuizzes; i++) {
+        await this.shuffleQuizById(newQuiz.id);
+      }
+
       return { ...newQuiz, allQuestionAnswer };
     } catch (error) {
       console.log(error);
@@ -378,27 +383,6 @@ export class QuizService {
           arrayIdOfCorrectAnswers,
           quizAttemptDetail.chosenAnswer,
         );
-
-        // let isLengthEqual: boolean;
-        // let isCorrectAnswers: boolean[];
-
-        // if (
-        //   arrayIdOfCorrectAnswers.length ===
-        //   quizAttemptDetail.chosenAnswer.length
-        // ) {
-        //   isLengthEqual = true;
-        // } else isLengthEqual = false;
-
-        // for (let i = 0; i < arrayIdOfCorrectAnswers.length; i++) {
-        //   if (
-        //     arrayIdOfCorrectAnswers[i] === quizAttemptDetail.chosenAnswer[i]
-        //   ) {
-        //     isCorrectAnswers.push(true);
-        //   } else isCorrectAnswers.push(false);
-        // }
-        // const isCorrect = isCorrectAnswers.every(
-        //   (isCorrectAnswer) => isCorrectAnswer === true,
-        // );
 
         if (isCorrect) {
           quizAttempt.grade = quizAttempt.grade.plus(gradePerQuestion);

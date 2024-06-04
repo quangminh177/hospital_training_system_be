@@ -39,4 +39,8 @@ export class CreateQuizDto {
   @ValidateNested({ each: true })
   @Type(() => AddQuestionOption)
   option: AddQuestionOption;
+
+  @IsNotEmpty()
+  @IsNumber()
+  numberOfQuizzes: number;
 }

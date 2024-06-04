@@ -14,6 +14,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { GlobalExceptionFilter } from './common/exception-filters/global-exception.filter';
 import { QuestionModule } from './question/question-answer.module';
 import { QuizModule } from './quiz/quiz.module';
+import { AssignmentModule } from './assignment/assignment.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { QuizModule } from './quiz/quiz.module';
     TopicModule,
     QuestionModule,
     QuizModule,
+    AssignmentModule,
   ],
   providers: [
     {

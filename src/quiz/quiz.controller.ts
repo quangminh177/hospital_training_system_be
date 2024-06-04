@@ -36,7 +36,7 @@ export class QuizController {
     return await this.quizService.getQuizByTopicId(topicId);
   }
 
-  //Get Quiz By Id
+  //Trainee get Quiz By Id
   @Roles('TRAINEE')
   @UseGuards(RolesGuard)
   @UseGuards(TimeRangeGuard)
@@ -46,6 +46,7 @@ export class QuizController {
     return await this.quizService.getQuizById(quizId);
   }
 
+  //Trainer get Quiz By Id
   @Roles('TRAINER')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)

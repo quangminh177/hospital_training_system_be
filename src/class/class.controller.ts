@@ -25,6 +25,8 @@ import {
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { RolesGuard } from 'src/common/guards/roles.guard';
+import { GetCurrentUser } from 'src/common/decorators';
+import { User } from '@prisma/client';
 
 @Controller('class')
 @ApiTags('class')
@@ -41,6 +43,16 @@ export class ClassController {
     query: ClassQueryDto,
   ) {
     return await this.classService.getAllClass(query);
+  }
+
+  //Get my Classes
+  @Roles('TRAINER', 'TRAINEE')
+  @UseGuards(RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get('myClass')
+  async getMyClass(@GetCurrentUser() user: User) {
+    console.log(user);
+    return await this.classService.getMyClass(user);
   }
 
   //Get Class By Id
