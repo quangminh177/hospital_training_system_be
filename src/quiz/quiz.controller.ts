@@ -28,7 +28,7 @@ export class QuizController {
   constructor(private quizService: QuizService) {}
 
   //Get Quiz By TopicId
-  @Roles('TRAINER')
+  @Roles('TRAINER', 'TRAINEE')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('topic/:id')
@@ -56,7 +56,7 @@ export class QuizController {
   }
 
   //Shuffle Quiz By QuizId
-  @Roles('TRAINER')
+  @Roles('TRAINER', 'TRAINEE')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Post('/shuffleQuiz/:id')

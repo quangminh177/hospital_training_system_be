@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateAssignmentDto, EditAssignmentDto } from './dto';
+import { Response } from 'express';
 
 @Injectable()
 export class AssignmentService {
@@ -40,7 +41,7 @@ export class AssignmentService {
   }
 
   //Get Assignment by Id
-  async getAssignmentById(assignmentId: number) {
+  async getAssignmentById(assignmentId: number, res: Response) {
     try {
       const assignment = await this.prisma.assignment.findUnique({
         where: {
@@ -56,8 +57,28 @@ export class AssignmentService {
           },
         });
 
+      const assignmentAttachments = await this.prisma.attachment.findMany({
+        where: {
+          assignmentId: assignmentId,
+        },
+      });
+
+      if (!assignmentAttachments) {
+        throw new HttpException('File not found', HttpStatus.NOT_FOUND);
+      }
+
+      for (const assignmentAttachment of assignmentAttachments) {
+        res.setHeader(
+          'Content-Disposition',
+          `attachment; filename=${assignmentAttachment}`,
+        );
+        res.setHeader('Content-Type', assignmentAttachment.mimeType);
+        res.send(assignmentAttachment.data);
+      }
+
       const assignmentAndSubmissions = {
         ...assignment,
+        assignmentAttachments,
         assignmentSubmission,
       };
 
@@ -68,7 +89,10 @@ export class AssignmentService {
   }
 
   //Create Assignment
-  async createAssignment(dto: CreateAssignmentDto) {
+  async createAssignment(
+    dto: CreateAssignmentDto,
+    assignmentFile: Express.Multer.File,
+  ) {
     try {
       // Create new Assignment
       const newAssignment = await this.prisma.assignment.create({
@@ -85,7 +109,19 @@ export class AssignmentService {
         },
       });
 
-      return newAssignment;
+      const { originalname, mimetype, buffer } = assignmentFile;
+
+      //Create Attachment
+      const assignmentAttachment = await this.prisma.attachment.create({
+        data: {
+          assignmentId: newAssignment.id,
+          name: originalname,
+          mimeType: mimetype,
+          data: buffer,
+        },
+      });
+
+      return { ...newAssignment, assignmentAttachment };
     } catch (error) {
       throw error;
     }

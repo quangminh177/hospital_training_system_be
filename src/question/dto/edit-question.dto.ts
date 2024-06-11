@@ -1,8 +1,6 @@
-import { Level } from '@prisma/client';
 import {
   ArrayMinSize,
   IsArray,
-  IsEnum,
   IsNumber,
   IsOptional,
   IsString,
@@ -16,9 +14,9 @@ export class EditQuestionDto {
   @IsOptional()
   topicId?: number;
 
-  @IsEnum(Level)
+  @IsNumber()
   @IsOptional()
-  level?: Level;
+  levelId?: number;
 
   @IsOptional()
   @IsString()

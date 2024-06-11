@@ -43,7 +43,7 @@ export class CourseController {
   @Roles('ADMIN')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
-  @Get('/:id')
+  @Get(':id')
   async getCourseById(@Param('id', ParseIntPipe) courseId: number) {
     return await this.courseService.getCourseById(courseId);
   }

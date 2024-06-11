@@ -1,5 +1,7 @@
 import { Transform, Type } from 'class-transformer';
 import {
+  ArrayMinSize,
+  IsArray,
   IsDate,
   IsNotEmpty,
   IsNumber,
@@ -36,11 +38,13 @@ export class CreateQuizDto {
   endAt: Date;
 
   @IsNotEmpty()
+  @IsArray()
+  @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => AddQuestionOption)
-  option: AddQuestionOption;
+  option: AddQuestionOption[];
 
-  @IsNotEmpty()
-  @IsNumber()
-  numberOfQuizzes: number;
+  // @IsNotEmpty()
+  // @IsNumber()
+  // numberOfQuizzes: number;
 }

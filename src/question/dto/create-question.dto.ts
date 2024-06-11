@@ -1,8 +1,6 @@
-import { Level } from '@prisma/client';
 import {
   ArrayMinSize,
   IsArray,
-  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsString,
@@ -16,9 +14,9 @@ export class CreateQuestionDto {
   @IsNotEmpty()
   topicId: number;
 
-  @IsEnum(Level)
+  @IsNumber()
   @IsNotEmpty()
-  level: Level;
+  levelId: number;
 
   @IsNotEmpty()
   @IsString()

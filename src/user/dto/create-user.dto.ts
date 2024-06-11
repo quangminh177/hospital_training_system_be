@@ -1,4 +1,4 @@
-import { Gender, Job, Role } from '@prisma/client';
+import { Gender, Role } from '@prisma/client';
 import { Transform } from 'class-transformer';
 import {
   IsDate,
@@ -6,6 +6,7 @@ import {
   IsEnum,
   IsInt,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -46,9 +47,9 @@ export class CreateUserDto {
   @IsNotEmpty()
   gender: Gender;
 
-  @IsEnum(Job)
+  @IsNumber()
   @IsOptional()
-  job: Job;
+  jobId: number;
 
   @IsOptional()
   @IsInt()

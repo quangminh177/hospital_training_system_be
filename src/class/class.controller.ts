@@ -34,8 +34,8 @@ export class ClassController {
   constructor(private classService: ClassService) {}
 
   //Get All Classes
-  @Roles('ADMIN', 'UPPER')
-  @UseGuards(RolesGuard)
+  // @Roles('ADMIN', 'UPPER')
+  // @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('')
   async getAllClass(
@@ -51,15 +51,14 @@ export class ClassController {
   @HttpCode(HttpStatus.OK)
   @Get('myClass')
   async getMyClass(@GetCurrentUser() user: User) {
-    console.log(user);
     return await this.classService.getMyClass(user);
   }
 
   //Get Class By Id
-  @Roles('ADMIN', 'UPPER')
-  @UseGuards(RolesGuard)
+  // @Roles('ADMIN', 'UPPER')
+  // @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
-  @Get('/:id')
+  @Get(':id')
   async getClassById(@Param('id', ParseIntPipe) classId: number) {
     return await this.classService.getClassById(classId);
   }

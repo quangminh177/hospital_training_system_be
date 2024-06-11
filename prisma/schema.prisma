@@ -21,17 +21,30 @@ model User {
   image                 String?
   gender                Gender
   departmentId          Int
+  jobId                 Int
   isDeleted             Boolean                @default(false)
   hashedRt              String?
-  job                   Job
   assignmentSubmissions AssignmentSubmission[]
   classUsers            ClassUser[]
   curriculumDetails     CurriculumDetail[]
   quizAttempts          QuizAttempt[]
   topicGrades           TopicGrade[]
+  job                   Job                    @relation(fields: [jobId], references: [id])
   department            Department             @relation(fields: [departmentId], references: [id])
 
   @@map("users")
+}
+
+model Job {
+  id              Int          @id @default(autoincrement())
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  isDeleted       Boolean      @default(false)
+  jobName         String
+  description     String?
+  users           User[]
+
+  @@map("jobs")
 }
 
 model Class {
@@ -40,6 +53,7 @@ model Class {
   updatedAt       DateTime     @updatedAt
   isDeleted       Boolean      @default(false)
   courseId        Int
+  statusClassId   Int?
   className       String
   startDate       DateTime
   endDate         DateTime
@@ -47,14 +61,27 @@ model Class {
   maxQuantity     Int
   allowedRegister Boolean
   quantity        Int?
-  status          StatusClass? @default(AWAITING_APPROVAL)
+  // status          StatusClass? @default(AWAITING_APPROVAL)
   curriculumId    Int
   classUsers      ClassUser[]
   course          Course       @relation(fields: [courseId], references: [id])
+  statusClass     StatusClass?  @relation(fields: [statusClassId], references: [id])
   curriculum      Curriculum   @relation(fields: [curriculumId], references: [id])
   schedules       Schedule[]
 
   @@map("classes")
+}
+
+model StatusClass {
+  id              Int          @id @default(autoincrement())
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  isDeleted       Boolean      @default(false)
+  statusClass     String      
+  description     String?
+  classes         Class[]
+
+  @@map("statusClasses")
 }
 
 model Schedule {
@@ -94,7 +121,7 @@ model Department {
   name        String
   description String?
   courses     Course[]
-  staff       User[]
+  users       User[]
 
   @@map("departments")
 }
@@ -223,14 +250,16 @@ model Attachment {
   createdAt              DateTime             @default(now())
   updatedAt              DateTime             @updatedAt
   isDeleted              Boolean              @default(false)
-  assignmentId           Int
-  assignmentSubmissionId Int
+  assignmentId           Int?
+  assignmentSubmissionId Int?
   name                   String
-  description            String
-  format                 Format
+  description            String?
+  mimeType               String
+  data                   Bytes
+  format                 Format?
   url                    String?
-  assignment             Assignment           @relation(fields: [assignmentId], references: [id])
-  assignmentSubmission   AssignmentSubmission @relation(fields: [assignmentSubmissionId], references: [id])
+  assignment             Assignment?           @relation(fields: [assignmentId], references: [id])
+  assignmentSubmission   AssignmentSubmission? @relation(fields: [assignmentSubmissionId], references: [id])
 
   @@map("attachments")
 }
@@ -257,14 +286,27 @@ model Question {
   updatedAt            DateTime            @updatedAt
   isDeleted            Boolean             @default(false)
   topicId              Int
+  levelId              Int
   questionName         String
-  level                Level
   answers              Answer[]
   topic                Topic               @relation(fields: [topicId], references: [id])
+  level                Level               @relation(fields: [levelId], references: [id])
   quiz_attempt_details QuizAttemptDetail[]
   quiz_details         QuizDetail[]
 
   @@map("questions")
+}
+
+model Level {
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  isDeleted    Boolean  @default(false)
+  level        String
+  description  String?
+  questions    Question[]
+
+  @@map("levels")
 }
 
 model Answer {
@@ -348,12 +390,6 @@ model QuizAttemptDetail {
   @@map("quiz_attempt_detail")
 }
 
-enum Job {
-  Doctor
-  Nurse
-  Intern
-}
-
 enum DayInWeek {
   Monday
   Tuesday
@@ -376,14 +412,14 @@ enum Gender {
   Female
 }
 
-enum StatusClass {
-  AWAITING_APPROVAL
-  OPENING_REGISTER
-  COMING_SOON
-  ON_GOING
-  CLOSED
-  REJECTED
-}
+// enum StatusClass {
+//   AWAITING_APPROVAL
+//   OPENING_REGISTER
+//   COMING_SOON
+//   ON_GOING
+//   CLOSED
+//   REJECTED
+// }
 
 enum Format {
   Word
@@ -398,10 +434,4 @@ enum AssignmentSubmissionStatus {
   AVAILABLE_SUBMIT
   SUBMIT_AFTER_DEADLINE
   EXPIRED
-}
-
-enum Level {
-  Easy
-  Medium
-  Hard
 }

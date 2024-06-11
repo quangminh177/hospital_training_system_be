@@ -37,12 +37,17 @@ export class QuizService {
   //Get Quiz by Id
   async getQuizById(quizId: number) {
     try {
-      const quiz = await this.prisma.quiz.findUnique({
-        where: {
-          id: quizId,
-          isDeleted: false,
-        },
-      });
+      const quiz = await this.prisma.quiz
+        .findUnique({
+          where: {
+            id: quizId,
+            isDeleted: false,
+          },
+        })
+        .catch((error) => {
+          console.log(error);
+          throw error;
+        });
 
       //Get Question from QuizDetail
       const questionsQuiz = await this.prisma.quizDetail.findMany({
@@ -172,7 +177,7 @@ export class QuizService {
       const newQuiz = await this.prisma.quiz.create({
         data: {
           topicId: dto.topicId,
-          quizName: `${dto.quizName} ${dto.timeLimit}`,
+          quizName: `${dto.quizName}`,
           timeLimit: dto.timeLimit,
           weight: dto.weight,
           startAt: dto.startAt,
@@ -183,42 +188,25 @@ export class QuizService {
       });
 
       // Add Question of this Quiz
-      // Find random questions with a topicId and level = Easy
-      const easyQuestionsOfQuiz = await prisma.question.findManyRandom(
-        dto.option.numberOfEasyQuestion,
-        {
-          select: { id: true, questionName: true, level: true },
-          where: { topicId: { equals: dto.topicId }, level: 'Easy' },
-        },
-      );
+      const allQuestions = [];
 
-      // Find random questions with a topicId and level = Medium
-      const mediumQuestionsOfQuiz = await prisma.question.findManyRandom(
-        dto.option.numberOfMediumQuestion,
-        {
-          select: { id: true, questionName: true, level: true },
-          where: { topicId: { equals: dto.topicId }, level: 'Medium' },
-        },
-      );
+      for (const option of dto.option) {
+        const arrayLevelQuestionsOfQuiz = await prisma.question.findManyRandom(
+          option.numberOfLevelQuestion,
+          {
+            select: { id: true, questionName: true, levelId: true },
+            where: {
+              topicId: { equals: dto.topicId },
+              levelId: option.levelId,
+            },
+          },
+        );
 
-      for (const question of mediumQuestionsOfQuiz) {
-        easyQuestionsOfQuiz.push(question);
+        for (const levelQuestionsOfQuiz of arrayLevelQuestionsOfQuiz) {
+          allQuestions.push(levelQuestionsOfQuiz);
+        }
       }
 
-      // Find random questions with a topicId and level = Hard
-      const hardQuestionsOfQuiz = await prisma.question.findManyRandom(
-        dto.option.numberOfHardQuestion,
-        {
-          select: { id: true, questionName: true, level: true },
-          where: { topicId: { equals: dto.topicId }, level: 'Hard' },
-        },
-      );
-
-      for (const question of hardQuestionsOfQuiz) {
-        easyQuestionsOfQuiz.push(question);
-      }
-
-      const allQuestions = easyQuestionsOfQuiz;
       const allQuestionAnswer = [];
 
       for (const question of allQuestions) {
@@ -254,10 +242,10 @@ export class QuizService {
         }
       }
 
-      //Shuffle original Quiz to Many Quizzes
-      for (let i = 0; i < dto.numberOfQuizzes; i++) {
-        await this.shuffleQuizById(newQuiz.id);
-      }
+      // //Shuffle original Quiz to Many Quizzes
+      // for (let i = 0; i < dto.numberOfQuizzes; i++) {
+      //   await this.shuffleQuizById(newQuiz.id);
+      // }
 
       return { ...newQuiz, allQuestionAnswer };
     } catch (error) {

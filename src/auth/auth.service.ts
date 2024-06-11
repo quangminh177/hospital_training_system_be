@@ -28,7 +28,7 @@ export class AuthService {
           firstName: dto.firstName,
           lastName: dto.lastName,
           role: dto.role,
-          job: dto.job,
+          jobId: dto.jobId,
           phone: dto.phone,
           dob: dto.dob,
           image: dto.image,

@@ -21,6 +21,14 @@ export class ClassService {
       if (page <= 0)
         throw new HttpException('Invalid input', HttpStatus.BAD_REQUEST);
 
+      const statusClass = await this.prisma.statusClass.findMany({
+        where: {
+          statusClass: status,
+        },
+      });
+
+      const statusClassId = statusClass[0].id;
+
       let allClasses: Class[];
 
       if (page && size) {
@@ -34,7 +42,7 @@ export class ClassService {
               contains: keyword,
               mode: 'insensitive',
             },
-            status: status,
+            statusClassId: statusClassId,
           },
           take: +take,
           skip: skip,
@@ -47,7 +55,7 @@ export class ClassService {
               contains: keyword,
               mode: 'insensitive',
             },
-            status: status,
+            statusClassId: statusClassId,
           },
         });
       }
@@ -116,6 +124,7 @@ export class ClassService {
           minQuantity: dto.minQuantity,
           maxQuantity: dto.maxQuantity,
           allowedRegister: dto.allowedRegister,
+          statusClassId: 1,
         },
       });
 
@@ -252,7 +261,7 @@ export class ClassService {
             phone: userDto.phone,
             dob: userDto.dob,
             departmentId: userDto.departmentId,
-            job: userDto.job,
+            jobId: userDto.jobId,
             gender: userDto.gender,
           },
         });

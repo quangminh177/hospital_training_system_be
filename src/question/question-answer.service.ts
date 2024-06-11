@@ -74,7 +74,7 @@ export class QuestionService {
         data: {
           questionName: dto.questionName,
           topicId: dto.topicId,
-          level: dto.level,
+          levelId: dto.levelId,
         },
       });
 
@@ -109,7 +109,7 @@ export class QuestionService {
         data: {
           questionName: dto.questionName,
           topicId: dto.topicId,
-          level: dto.level,
+          levelId: dto.levelId,
         },
       });
 

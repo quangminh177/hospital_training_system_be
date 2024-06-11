@@ -1,5 +1,4 @@
-import { IsOptional, IsInt, IsString, Min, Max, IsEnum } from 'class-validator';
-import { StatusClass } from '@prisma/client';
+import { IsOptional, IsInt, IsString, Min, Max } from 'class-validator';
 
 export class ClassQueryDto {
   @IsOptional()
@@ -14,8 +13,8 @@ export class ClassQueryDto {
   size?: number;
 
   @IsOptional()
-  @IsEnum(StatusClass)
-  status?: StatusClass;
+  @IsString()
+  status?: string;
 
   @IsOptional()
   @IsString()

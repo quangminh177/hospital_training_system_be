@@ -1,4 +1,4 @@
-import { Gender, Job } from '@prisma/client';
+import { Gender } from '@prisma/client';
 import { Transform } from 'class-transformer';
 import {
   IsDate,
@@ -35,9 +35,9 @@ export class EditUserDto {
   @IsOptional()
   image?: string;
 
-  @IsEnum(Job)
+  @IsNumber()
   @IsOptional()
-  job?: Job;
+  jobId?: number;
 
   @IsEnum(Gender)
   @IsOptional()

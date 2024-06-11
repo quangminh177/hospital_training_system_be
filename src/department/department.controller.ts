@@ -24,7 +24,7 @@ export class DepartmentController {
   constructor(private departmentService: DepartmentService) {}
 
   //Get All Departments
-  @Roles('UPPER')
+  @Roles('UPPER', 'ADMIN')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('')

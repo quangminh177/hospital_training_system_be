@@ -9,13 +9,18 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Res,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { AssignmentService } from './assignment.service';
 import { CreateAssignmentDto, EditAssignmentDto } from './dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Response } from 'express';
 
 @Controller('assignment')
 @ApiTags('assignment')
@@ -35,9 +40,12 @@ export class AssignmentController {
   @Roles('TRAINER', 'TRAINEE')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
-  @Get('/:id')
-  async getAssignmentById(@Param('id', ParseIntPipe) assignmentId: number) {
-    return await this.assignmentService.getAssignmentById(assignmentId);
+  @Get(':id')
+  async getAssignmentById(
+    @Param('id', ParseIntPipe) assignmentId: number,
+    @Res() res: Response,
+  ) {
+    return await this.assignmentService.getAssignmentById(assignmentId, res);
   }
 
   //Create Assignment
@@ -45,8 +53,12 @@ export class AssignmentController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post('createAssignment')
-  async createAssignment(@Body() dto: CreateAssignmentDto) {
-    return await this.assignmentService.createAssignment(dto);
+  @UseInterceptors(FileInterceptor('assignmentFile'))
+  async createAssignment(
+    @Body() dto: CreateAssignmentDto,
+    @UploadedFile() assignmentFile: Express.Multer.File,
+  ) {
+    return await this.assignmentService.createAssignment(dto, assignmentFile);
   }
 
   //Edit Assignment by Id

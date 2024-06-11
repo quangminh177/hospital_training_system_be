@@ -27,7 +27,6 @@ export class TopicController {
   constructor(private topicService: TopicService) {}
 
   //Get all Topics
-  // @Public()
   @Roles('TRAINER')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
@@ -44,8 +43,7 @@ export class TopicController {
   }
 
   //Get Topics By CourseId
-  // @Public()
-  @Roles('TRAINER')
+  @Roles('TRAINER', 'TRAINEE')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('course/:id')

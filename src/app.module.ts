@@ -15,6 +15,9 @@ import { GlobalExceptionFilter } from './common/exception-filters/global-excepti
 import { QuestionModule } from './question/question-answer.module';
 import { QuizModule } from './quiz/quiz.module';
 import { AssignmentModule } from './assignment/assignment.module';
+import { JobModule } from './job/job.module';
+import { LevelModule } from './level/level.module';
+import { StatusClassModule } from './statusClass/statusClass.module';
 
 @Module({
   imports: [
@@ -32,6 +35,9 @@ import { AssignmentModule } from './assignment/assignment.module';
     QuestionModule,
     QuizModule,
     AssignmentModule,
+    JobModule,
+    LevelModule,
+    StatusClassModule,
   ],
   providers: [
     {
