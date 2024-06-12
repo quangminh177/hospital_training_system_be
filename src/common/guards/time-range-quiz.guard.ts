@@ -8,7 +8,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Request } from 'express';
 
 @Injectable()
-export class TimeRangeGuard implements CanActivate {
+export class TimeRangeQuizGuard implements CanActivate {
   constructor(private readonly prisma: PrismaService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

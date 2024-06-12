@@ -105,4 +105,56 @@ export class ClassController {
   async deleteClassById(@Param('id', ParseIntPipe) classId: number) {
     return await this.classService.deleteClassById(classId);
   }
+
+  //Upper approve Class by Id
+  @Roles('UPPER')
+  @UseGuards(RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @Patch('approveClass/:id')
+  async approveClassById(@Param('id', ParseIntPipe) classId: number) {
+    return await this.classService.approveClassById(classId);
+  }
+
+  //Upper reject Class by Id
+  @Roles('UPPER')
+  @UseGuards(RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @Patch('rejectClass/:id')
+  async rejectClassById(@Param('id', ParseIntPipe) classId: number) {
+    return await this.classService.rejectClassById(classId);
+  }
+
+  //Trainee register Class by Id
+  @Roles('TRAINEE')
+  @UseGuards(RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post('registerClass/:id')
+  async registerClassById(
+    @Param('id', ParseIntPipe) classId: number,
+    @GetCurrentUser() user: User,
+  ) {
+    return await this.classService.registerClassById(classId, user);
+  }
+
+  //Upper approve Trainee to Class by Register Id
+  @Roles('UPPER')
+  @UseGuards(RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @Patch('approveRegister/:registerId')
+  async approveRegisterById(
+    @Param('registerId', ParseIntPipe) registerId: number,
+  ) {
+    return await this.classService.approveRegisterById(registerId);
+  }
+
+  //Upper reject Trainee to Class by Register Id
+  @Roles('UPPER')
+  @UseGuards(RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @Patch('rejectRegister/:registerId')
+  async rejectRegisterById(
+    @Param('registerId', ParseIntPipe) registerId: number,
+  ) {
+    return await this.classService.rejectRegisterById(registerId);
+  }
 }

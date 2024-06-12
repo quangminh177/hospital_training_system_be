@@ -70,27 +70,38 @@ export class QuestionService {
   async createQuestion(dto: CreateQuestionDto) {
     try {
       // Create new Question
-      const newQuestion = await this.prisma.question.create({
+      let newQuestion = await this.prisma.question.create({
         data: {
           questionName: dto.questionName,
           topicId: dto.topicId,
           levelId: dto.levelId,
+          countCorrect: 0,
         },
       });
 
+      let countCorrect = 0;
       // Create Answer of this Question
       for (let i = 0; i < dto.answers.length; i++) {
-        await this.prisma.answer.create({
+        const answer = await this.prisma.answer.create({
           data: {
             answerName: dto.answers[i].answerName,
             isCorrect: dto.answers[i].isCorrect,
             defaultOrder: i + 1,
-            question: {
-              connect: { id: newQuestion.id },
-            },
+            questionId: newQuestion.id,
           },
         });
+
+        if (answer.isCorrect) countCorrect++;
       }
+
+      newQuestion = await this.prisma.question.update({
+        where: {
+          id: newQuestion.id,
+        },
+        data: {
+          countCorrect: countCorrect,
+        },
+      });
 
       return newQuestion;
     } catch (error) {

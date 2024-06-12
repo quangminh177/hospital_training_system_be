@@ -20,7 +20,7 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
 import { GetCurrentUser } from 'src/common/decorators';
 import { User } from '@prisma/client';
 import { AttemptQuizDto } from './dto/attempt-quiz.dto';
-import { TimeRangeGuard } from 'src/common/guards/time-range.guard';
+import { TimeRangeQuizGuard } from 'src/common/guards/time-range-quiz.guard';
 
 @Controller('quiz')
 @ApiTags('quiz')
@@ -39,7 +39,7 @@ export class QuizController {
   //Trainee get Quiz By Id
   @Roles('TRAINEE')
   @UseGuards(RolesGuard)
-  @UseGuards(TimeRangeGuard)
+  @UseGuards(TimeRangeQuizGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/trainee/:quizId')
   async traineeGetQuizById(@Param('quizId', ParseIntPipe) quizId: number) {

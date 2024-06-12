@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Logger,
+  OnModuleInit,
+} from '@nestjs/common';
 import {
   ClassQueryDto,
   CreateClassDto,
@@ -9,10 +15,16 @@ import { PrismaService } from '../prisma/prisma.service';
 import * as exceljs from 'exceljs';
 import { Class, Schedule, User } from '@prisma/client';
 import { EditUserDto } from 'src/user/dto';
+import * as cron from 'node-cron';
 
 @Injectable()
-export class ClassService {
+export class ClassService implements OnModuleInit {
+  private readonly logger = new Logger(ClassService.name);
   constructor(private prisma: PrismaService) {}
+
+  onModuleInit() {
+    this.scheduleUpdateStatusOfClass();
+  }
 
   //Get all Class
   async getAllClass(query: ClassQueryDto) {
@@ -367,5 +379,220 @@ export class ClassService {
     } catch (error) {
       throw error;
     }
+  }
+
+  //Approve Class By Id
+  async approveClassById(classId: number) {
+    try {
+      //Get class
+      let approvedClass = await this.getClassById(classId);
+
+      const awaitingApprovingStatus = await this.prisma.statusClass.findFirst({
+        where: {
+          statusClass: 'AWAITING_APPROVAL',
+        },
+      });
+
+      if (approvedClass.statusClassId !== awaitingApprovingStatus.id)
+        throw new HttpException(
+          'Class is not awaiting approving',
+          HttpStatus.BAD_REQUEST,
+        );
+
+      const openingRegisterStatus = await this.prisma.statusClass.findFirst({
+        where: {
+          statusClass: 'OPENING_REGISTER',
+        },
+      });
+
+      const comingSoonStatus = await this.prisma.statusClass.findFirst({
+        where: {
+          statusClass: 'COMING_SOON',
+        },
+      });
+
+      if (approvedClass.allowedRegister === true) {
+        approvedClass = await this.prisma.class.update({
+          where: {
+            id: classId,
+          },
+          data: {
+            statusClassId: openingRegisterStatus.id,
+          },
+        });
+      } else {
+        approvedClass = await this.prisma.class.update({
+          where: {
+            id: classId,
+          },
+          data: {
+            statusClassId: comingSoonStatus.id,
+          },
+        });
+      }
+
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  //Reject Class By Id
+  async rejectClassById(classId: number) {
+    try {
+      const rejectedClass = await this.getClassById(classId);
+
+      const awaitingApprovingStatus = await this.prisma.statusClass.findFirst({
+        where: {
+          statusClass: 'AWAITING_APPROVAL',
+        },
+      });
+
+      if (rejectedClass.statusClassId !== awaitingApprovingStatus.id)
+        throw new HttpException(
+          'Class is not awaiting approving',
+          HttpStatus.BAD_REQUEST,
+        );
+
+      const rejectedStatus = await this.prisma.statusClass.findFirst({
+        where: {
+          statusClass: 'REJECTED',
+        },
+      });
+
+      await this.prisma.class.update({
+        where: {
+          id: classId,
+        },
+        data: {
+          statusClassId: rejectedStatus.id,
+        },
+      });
+
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  //Update Status Of Class
+  async scheduleUpdateStatusOfClass() {
+    cron.schedule('* * * * * *', async () => {
+      await this.updateStatusOfClass();
+    });
+  }
+
+  async updateStatusOfClass() {
+    const timeNow = new Date();
+
+    //GET COMING_SOON STATUS
+    const comingSoonStatus = await this.prisma.statusClass.findFirst({
+      where: {
+        statusClass: 'COMING_SOON',
+        isDeleted: false,
+      },
+    });
+
+    //GET ON_GOING STATUS
+    const onGoingStatus = await this.prisma.statusClass.findFirst({
+      where: {
+        statusClass: 'ON_GOING',
+        isDeleted: false,
+      },
+    });
+
+    //GET CLOSED STATUS
+    const closedStatus = await this.prisma.statusClass.findFirst({
+      where: {
+        statusClass: 'CLOSED',
+        isDeleted: false,
+      },
+    });
+
+    const classesToStart = await this.prisma.class.findMany({
+      where: {
+        statusClassId: comingSoonStatus.id,
+        isDeleted: false,
+      },
+    });
+
+    for (const classItem of classesToStart) {
+      if (classItem.startDate < timeNow) {
+        await this.prisma.class.update({
+          where: {
+            id: classItem.id,
+            isDeleted: false,
+          },
+          data: {
+            statusClassId: onGoingStatus.id,
+          },
+        });
+        this.logger.log(`Class ${classItem.className} started`);
+      }
+    }
+
+    const classesToEnd = await this.prisma.class.findMany({
+      where: {
+        statusClassId: onGoingStatus.id,
+        isDeleted: false,
+      },
+    });
+
+    for (const classItem of classesToEnd) {
+      if (timeNow > classItem.endDate) {
+        await this.prisma.class.update({
+          where: {
+            id: classItem.id,
+            isDeleted: false,
+          },
+          data: {
+            statusClassId: closedStatus.id,
+          },
+        });
+        this.logger.log(`Class ${classItem.className} ended`);
+      }
+    }
+  }
+
+  async registerClassById(classId: number, user: User) {
+    const classUser = await this.prisma.classUser.findFirst({
+      where: {
+        classId: classId,
+        userId: user.id,
+      },
+    });
+
+    await this.prisma.register.create({
+      data: {
+        classUserId: classUser.id,
+        isApproved: false,
+      },
+    });
+  }
+
+  async approveRegisterById(registerId: number) {
+    await this.prisma.register.update({
+      where: {
+        id: registerId,
+      },
+      data: {
+        isApproved: true,
+      },
+    });
+
+    return 'Trainee has been added to Class';
+  }
+
+  async rejectRegisterById(registerId: number) {
+    await this.prisma.register.update({
+      where: {
+        id: registerId,
+      },
+      data: {
+        isApproved: false,
+      },
+    });
+
+    return 'Trainee has been added to Class';
   }
 }
