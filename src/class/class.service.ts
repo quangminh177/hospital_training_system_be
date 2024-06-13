@@ -555,10 +555,12 @@ export class ClassService implements OnModuleInit {
   }
 
   async registerClassById(classId: number, user: User) {
-    const classUser = await this.prisma.classUser.findFirst({
-      where: {
+    const classUser = await this.prisma.classUser.create({
+      data: {
         classId: classId,
         userId: user.id,
+        isTrainer: false,
+        isDeleted: true,
       },
     });
 
@@ -571,12 +573,21 @@ export class ClassService implements OnModuleInit {
   }
 
   async approveRegisterById(registerId: number) {
-    await this.prisma.register.update({
+    const register = await this.prisma.register.update({
       where: {
         id: registerId,
       },
       data: {
         isApproved: true,
+      },
+    });
+
+    await this.prisma.classUser.update({
+      where: {
+        id: register.classUserId,
+      },
+      data: {
+        isDeleted: false,
       },
     });
 
@@ -593,6 +604,6 @@ export class ClassService implements OnModuleInit {
       },
     });
 
-    return 'Trainee has been added to Class';
+    return 'Trainee has been rejected to Class';
   }
 }

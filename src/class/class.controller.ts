@@ -140,7 +140,7 @@ export class ClassController {
   @Roles('UPPER')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
-  @Patch('approveRegister/:registerId')
+  @Post('approveRegister/:registerId')
   async approveRegisterById(
     @Param('registerId', ParseIntPipe) registerId: number,
   ) {

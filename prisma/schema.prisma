@@ -107,8 +107,6 @@ model ClassUser {
   userId     Int
   isTrainer  Boolean  @default(false)
   finalGrade Decimal?
-  isRegistered  Boolean? @default(false)
-  registerAt  DateTime?  @default(now())
   class      Class    @relation(fields: [classId], references: [id])
   user       User     @relation(fields: [userId], references: [id])
   register  Register[]
