@@ -230,9 +230,9 @@ model ExternalResource {
   topicId     Int
   externalUrl String?
   name        String
-  description String
-  format      Format
+  description String?
   topic       Topic    @relation(fields: [topicId], references: [id])
+  attachments Attachment[]
 
   @@map("external_resources")
 }
@@ -265,14 +265,15 @@ model Attachment {
   isDeleted              Boolean              @default(false)
   assignmentId           Int?
   assignmentSubmissionId Int?
+  externalResourceId     Int?
   name                   String
   description            String?
   mimeType               String
   data                   Bytes
-  format                 Format?
   url                    String?
   assignment             Assignment?           @relation(fields: [assignmentId], references: [id])
   assignmentSubmission   AssignmentSubmission? @relation(fields: [assignmentSubmissionId], references: [id])
+  externalResource       ExternalResource?     @relation(fields: [externalResourceId], references: [id])
 
   @@map("attachments")
 }
@@ -285,7 +286,7 @@ model AssignmentSubmission {
   assignmentId               Int
   userId                     Int
   grade                      Decimal
-  assignmentSubmissionStatus AssignmentSubmissionStatus
+  description                String?
   assignment                 Assignment                 @relation(fields: [assignmentId], references: [id])
   user                       User                       @relation(fields: [userId], references: [id])
   attachments                Attachment[]
@@ -350,6 +351,7 @@ model Quiz {
   topicId        Int
   isOriginal     Boolean       @default(true)
   originalQuizId Int?
+  seeAnswer      Boolean       @default(true)
   quizAttempts   QuizAttempt[]
   quizDetails    QuizDetail[]
   topic          Topic         @relation(fields: [topicId], references: [id])
@@ -435,17 +437,17 @@ enum Gender {
 //   REJECTED
 // }
 
-enum Format {
-  Word
-  PDF
-  Powerpoint
-  Excel
-  Image
-  Link
-}
+// enum Format {
+//   Word
+//   PDF
+//   Powerpoint
+//   Excel
+//   Image
+//   Link
+// }
 
-enum AssignmentSubmissionStatus {
-  AVAILABLE_SUBMIT
-  SUBMIT_AFTER_DEADLINE
-  EXPIRED
-}
+// enum AssignmentSubmissionStatus {
+//   AVAILABLE_SUBMIT
+//   SUBMIT_AFTER_DEADLINE
+//   EXPIRED
+// }

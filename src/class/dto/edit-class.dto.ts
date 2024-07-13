@@ -1,5 +1,5 @@
 import { Schedule } from '@prisma/client';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
@@ -7,7 +7,9 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  ValidateNested,
 } from 'class-validator';
+import { AddTrainees } from './add-trainees.dto';
 
 export class EditClassDto {
   @IsNumber()
@@ -51,4 +53,10 @@ export class EditClassDto {
   @IsOptional()
   @IsArray()
   schedules?: Array<Schedule>;
+
+  @IsArray()
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => AddTrainees)
+  trainees?: AddTrainees[];
 }

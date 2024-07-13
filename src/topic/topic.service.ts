@@ -51,7 +51,7 @@ export class TopicService {
 
   //Get Topic by CourseId
   async getTopicByCourseId(
-    courseId,
+    courseId: number,
     querry: { page: number; size: number; keyword: string },
   ) {
     try {
@@ -166,6 +166,8 @@ export class TopicService {
 
   //Get Topic Grade of User
   async getGradeOfTopic(user: User, topicId: number) {
+    const topic = await this.getTopicById(topicId);
+
     //Check if Topic Grade exist
     const topicGradeExist = await this.prisma.topicGrade.findMany({
       where: {
@@ -190,6 +192,7 @@ export class TopicService {
       },
     });
 
+    //Tính điểm quiz trung bình của topic
     const allTopicQuizAttempts = [];
 
     for (const quizAttempt of allQuizAttempts) {
@@ -202,19 +205,83 @@ export class TopicService {
       const quizWeight = quiz.weight;
       const quizAttemptAndWeight = { ...quizAttempt, quizWeight };
 
-      if (quiz.topicId === topicId)
+      if (quiz.topicId === topicId) {
         allTopicQuizAttempts.push(quizAttemptAndWeight);
+      }
     }
 
     let totalTopicQuizGrade = new Decimal(0);
+    let totalTopicQuizWeight = new Decimal(0);
     for (const topicQuizAttempt of allTopicQuizAttempts) {
       totalTopicQuizGrade = totalTopicQuizGrade.plus(
         topicQuizAttempt.grade.times(topicQuizAttempt.quizWeight),
       );
+      totalTopicQuizWeight = totalTopicQuizWeight.plus(
+        topicQuizAttempt.quizWeight,
+      );
+    }
+    // console.log(`totalTopicQuizGrade: ${totalTopicQuizGrade}`);
+    // console.log(`totalTopicQuizWeight: ${totalTopicQuizWeight}`);
+
+    /*Fix 3 lines under*/
+    const quizGrade = totalTopicQuizGrade.dividedBy(totalTopicQuizWeight);
+
+    // const quizGrade = totalTopicQuizGrade;
+
+    //Get all AssignmentSubmissions of User
+    const allAssignmentSubmissions =
+      await this.prisma.assignmentSubmission.findMany({
+        where: {
+          userId: user.id,
+        },
+      });
+
+    //Tính điểm assignment trung bình của topic
+    const allTopicAssignmentSubmissions = [];
+
+    for (const assignmentSubmission of allAssignmentSubmissions) {
+      const assignment = await this.prisma.assignment.findUnique({
+        where: {
+          id: assignmentSubmission.assignmentId,
+        },
+      });
+
+      const assignmentWeight = assignment.weight;
+      const assignmentSubmissionAndWeight = {
+        ...assignmentSubmission,
+        assignmentWeight,
+      };
+
+      if (assignment.topicId === topicId) {
+        allTopicAssignmentSubmissions.push(assignmentSubmissionAndWeight);
+      }
     }
 
-    const quizGrade = totalTopicQuizGrade.dividedBy(
-      allTopicQuizAttempts.length,
+    let totalTopicAssignmentGrade = new Decimal(0);
+    let totalTopicAssignmentWeight = new Decimal(0);
+    for (const topicAssignmentSubmission of allTopicAssignmentSubmissions) {
+      totalTopicAssignmentGrade = totalTopicAssignmentGrade.plus(
+        topicAssignmentSubmission.grade.times(
+          topicAssignmentSubmission.assignmentWeight,
+        ),
+      );
+      totalTopicAssignmentWeight = totalTopicAssignmentWeight.plus(
+        topicAssignmentSubmission.assignmentWeight,
+      );
+    }
+
+    // console.log(`totalTopicAssignmentGrade: ${totalTopicAssignmentGrade}`);
+    // console.log(`totalTopicAssignmentWeight: ${totalTopicAssignmentWeight}`);
+
+    /*Fix 3 lines under*/
+    const assignmentGrade = totalTopicAssignmentGrade.dividedBy(
+      totalTopicAssignmentWeight,
+    );
+
+    // const assignmentGrade = totalTopicAssignmentGrade;
+
+    const gradeOfTopic = new Decimal(quizGrade.times(topic.quizWeight)).plus(
+      assignmentGrade.times(topic.assignmentWeight),
     );
 
     let topicGrade = await this.prisma.topicGrade.findFirst({
@@ -223,13 +290,15 @@ export class TopicService {
         topicId: topicId,
       },
     });
+    console.log(topicGrade, quizGrade, assignmentGrade, gradeOfTopic);
 
     topicGrade = await this.prisma.topicGrade.update({
       where: topicGrade,
       data: {
         ...topicGrade,
         quizGrade,
-        grade: quizGrade,
+        assignmentGrade,
+        grade: gradeOfTopic,
       },
     });
 

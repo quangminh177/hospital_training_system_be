@@ -103,13 +103,13 @@ export class TopicController {
   }
 
   //Get Topic Grade of User
-  @Roles('TRAINEE')
+  @Roles('TRAINEE', 'TRAINER')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
-  @Get('grade/:id')
+  @Get('grade/:topicId')
   async getGradeOfTopic(
     @GetCurrentUser() user: User,
-    @Param('id', ParseIntPipe) topicId: number,
+    @Param('topicId', ParseIntPipe) topicId: number,
   ) {
     return await this.topicService.getGradeOfTopic(user, topicId);
   }

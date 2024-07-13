@@ -24,7 +24,7 @@ export class JobController {
   constructor(private jobService: JobService) {}
 
   //Get All Jobs
-  @Roles('UPPER')
+  @Roles('UPPER', 'ADMIN')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('')
@@ -73,7 +73,7 @@ export class JobController {
   @Roles('UPPER')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
-  @Delete('deleteDepartment/:id')
+  @Delete('deleteJob/:id')
   async deleteDepartmentById(@Param('id', ParseIntPipe) jobId: number) {
     return await this.jobService.deleteJobById(jobId);
   }

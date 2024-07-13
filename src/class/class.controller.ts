@@ -26,6 +26,7 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { GetCurrentUser } from 'src/common/decorators';
+import { Public } from 'src/common/decorators';
 import { User } from '@prisma/client';
 
 @Controller('class')
@@ -34,8 +35,8 @@ export class ClassController {
   constructor(private classService: ClassService) {}
 
   //Get All Classes
-  // @Roles('ADMIN', 'UPPER')
-  // @UseGuards(RolesGuard)
+  @Roles('ADMIN', 'UPPER', 'TRAINER', 'TRAINEE')
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('')
   async getAllClass(
@@ -55,8 +56,8 @@ export class ClassController {
   }
 
   //Get Class By Id
-  // @Roles('ADMIN', 'UPPER')
-  // @UseGuards(RolesGuard)
+  @Roles('ADMIN', 'UPPER')
+  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   async getClassById(@Param('id', ParseIntPipe) classId: number) {
@@ -66,6 +67,7 @@ export class ClassController {
   //Create Class
   @Roles('ADMIN', 'UPPER')
   @UseGuards(RolesGuard)
+  // @Public()
   @HttpCode(HttpStatus.CREATED)
   @Post('createClass')
   async createClass(@Body() dto: CreateClassDto) {
@@ -140,7 +142,7 @@ export class ClassController {
   @Roles('UPPER')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
-  @Post('approveRegister/:registerId')
+  @Patch('approveRegister/:registerId')
   async approveRegisterById(
     @Param('registerId', ParseIntPipe) registerId: number,
   ) {
@@ -156,5 +158,37 @@ export class ClassController {
     @Param('registerId', ParseIntPipe) registerId: number,
   ) {
     return await this.classService.rejectRegisterById(registerId);
+  }
+
+  //Upper get all Registers of Class by ClassId
+  @Roles('UPPER')
+  @UseGuards(RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get('allRegisters/:classId')
+  async getRegistersByClassId(@Param('classId', ParseIntPipe) classId: number) {
+    return await this.classService.getRegistersByClassId(classId);
+  }
+
+  //Trainer get all Grades of Topic of Trainee
+  @Roles('TRAINER')
+  @UseGuards(RolesGuard)
+  // @Public()
+  @HttpCode(HttpStatus.OK)
+  @Get('grade/:classId/:topicId')
+  async getTopicGradesOfClass(
+    @Param('classId', ParseIntPipe) classId: number,
+    @Param('topicId', ParseIntPipe) topicId: number,
+  ) {
+    return await this.classService.getTopicGradesOfClass(classId, topicId);
+  }
+
+  //Giảng viên lấy danh sách điểm của cả lớp
+  // @Roles('TRAINER')
+  // @UseGuards(RolesGuard)
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @Get('grade/:classId')
+  async getGradesOfClass(@Param('classId', ParseIntPipe) classId: number) {
+    return await this.classService.getGradesOfClass(classId);
   }
 }

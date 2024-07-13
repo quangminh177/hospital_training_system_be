@@ -24,7 +24,7 @@ export class LevelController {
   constructor(private levelService: LevelService) {}
 
   //Get All Levels
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'TRAINER')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('')
@@ -73,7 +73,7 @@ export class LevelController {
   @Roles('ADMIN')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
-  @Delete('deleteDepartment/:id')
+  @Delete('deleteLevel/:id')
   async deleteDepartmentById(@Param('id', ParseIntPipe) levelId: number) {
     return await this.levelService.deleteLevelById(levelId);
   }

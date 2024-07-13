@@ -41,7 +41,6 @@ export class QuizService {
         .findUnique({
           where: {
             id: quizId,
-            isDeleted: false,
           },
         })
         .catch((error) => {
@@ -55,6 +54,9 @@ export class QuizService {
           quizId: quizId,
           isDeleted: false,
         },
+        orderBy: {
+          id: 'asc',
+        },
       });
 
       const allQuestionsOfQuiz = [];
@@ -65,7 +67,7 @@ export class QuizService {
         );
         // Get All Questions of Quiz
         const question = await this.prisma.question.findUnique({
-          where: { id: questionQuiz.questionId, isDeleted: false },
+          where: { id: questionQuiz.questionId },
         });
 
         const answers: Answer[] = [];
@@ -182,6 +184,7 @@ export class QuizService {
           weight: dto.weight,
           startAt: dto.startAt,
           endAt: dto.endAt,
+          seeAnswer: dto.seeAnswer,
           isOriginal: true,
           originalQuizId: null,
         },
@@ -198,6 +201,7 @@ export class QuizService {
             where: {
               topicId: { equals: dto.topicId },
               levelId: option.levelId,
+              isDeleted: false,
             },
           },
         );
@@ -389,6 +393,65 @@ export class QuizService {
       return { ...quizAttempt, allQuizAttemptDetail };
     }
     return false;
+  }
+
+  //Review QuizAttempt
+  async reviewQuizAttempt(quizAttemptId: number) {
+    //Get quizAttempt (Lấy ra bài làm)
+    const quizAttempt = await this.prisma.quizAttempt.findUnique({
+      where: {
+        id: quizAttemptId,
+      },
+    });
+
+    //Get quiz (Lấy ra bài làm của học viên)
+    const quiz = await this.getQuizById(quizAttempt.quizId);
+
+    const allQuestionsOfQuiz = quiz.allQuestionsOfQuiz; //Lấy ra tất cả câu hỏi của đề thi
+    const allQuestionAttemptsOfQuiz = []; //Tất cả câu hỏi bài làm của học viên
+
+    for (const questionOfQuiz of allQuestionsOfQuiz) {
+      const questionAttemptDetailOfQuiz =
+        await this.prisma.quizAttemptDetail.findFirst({
+          where: {
+            questionId: questionOfQuiz.id,
+            quizAttemptId: quizAttemptId,
+          },
+        });
+
+      const questionAttemptOfQuiz = {
+        ...questionOfQuiz,
+        chosenAnswer: questionAttemptDetailOfQuiz.chosenAnswer,
+      };
+      allQuestionAttemptsOfQuiz.push(questionAttemptOfQuiz);
+    }
+    return allQuestionAttemptsOfQuiz;
+  }
+
+  async getGradesOfQuiz(quizId: number) {
+    //Get quizAttempt of assignment
+    const quizAttempts = await this.prisma.quizAttempt.findMany({
+      where: {
+        quizId: quizId,
+      },
+    });
+
+    const quizAttemptDetails = [];
+
+    for (const attempt of quizAttempts) {
+      const trainee = await this.prisma.user.findUnique({
+        where: {
+          id: attempt.userId,
+        },
+      });
+      delete trainee.hash;
+      delete trainee.hashedRt;
+
+      const quizAttemptAndTrainee = { ...attempt, trainee };
+      quizAttemptDetails.push(quizAttemptAndTrainee);
+    }
+
+    return quizAttemptDetails;
   }
 
   stringToNumberArray = (str: string) =>

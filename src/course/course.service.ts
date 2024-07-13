@@ -1,7 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCourseDto, EditCourseDto } from './dto';
-import { Course } from '@prisma/client';
+import { Course, User } from '@prisma/client';
+import Decimal from 'decimal.js';
 
 @Injectable()
 export class CourseService {
@@ -116,5 +117,67 @@ export class CourseService {
     } catch (error) {
       throw error;
     }
+  }
+
+  //Get Grade of Course
+  async getGradeOfCourse(user: User, courseId: number) {
+    const topicsOfCourse = await this.prisma.topic.findMany({
+      where: {
+        courseId: courseId,
+        isDeleted: false,
+      },
+      select: {
+        topicWeight: true,
+        id: true,
+        topicName: true,
+        topicNo: true,
+        quizWeight: true,
+        assignmentWeight: true,
+      },
+      orderBy: { topicNo: 'asc' },
+    });
+
+    const topicGradesAndWeight = [];
+
+    for (const topic of topicsOfCourse) {
+      const topicGrade = await this.prisma.topicGrade.findFirst({
+        where: {
+          topicId: topic.id,
+          userId: user.id,
+          isDeleted: false,
+        },
+        select: { grade: true, quizGrade: true, assignmentGrade: true },
+      });
+      const topicGradeAndWeight = { ...topic, topicGrade };
+      topicGradesAndWeight.push(topicGradeAndWeight);
+    }
+    console.log(topicGradesAndWeight);
+
+    let finalGrade = new Decimal(0);
+    for (const gradeAndWeight of topicGradesAndWeight) {
+      const partGrade = gradeAndWeight.topicWeight.times(
+        gradeAndWeight.topicGrade.grade,
+      );
+      finalGrade = finalGrade.plus(partGrade);
+    }
+    let classOfTrainee = await this.prisma.classUser.findFirst({
+      where: {
+        userId: user.id,
+        class: {
+          courseId: courseId,
+          isDeleted: false,
+        },
+        isDeleted: false,
+      },
+    });
+    classOfTrainee = await this.prisma.classUser.update({
+      where: {
+        id: classOfTrainee.id,
+      },
+      data: {
+        finalGrade,
+      },
+    });
+    return classOfTrainee;
   }
 }

@@ -1,5 +1,11 @@
 import { Transform } from 'class-transformer';
-import { IsDate, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsDate,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class EditQuizDto {
   @IsOptional()
@@ -27,4 +33,8 @@ export class EditQuizDto {
   @Transform(({ value }) => new Date(value))
   @IsDate()
   endAt?: Date;
+
+  @IsOptional()
+  @IsBoolean()
+  seeAnswer: boolean;
 }

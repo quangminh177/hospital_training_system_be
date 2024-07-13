@@ -24,7 +24,7 @@ export class CurriculumController {
   constructor(private curriculumService: CurriculumService) {}
 
   //Get All Curriculums
-  @Roles('UPPER')
+  @Roles('UPPER', 'ADMIN')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('')

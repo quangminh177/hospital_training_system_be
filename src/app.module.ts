@@ -18,6 +18,7 @@ import { AssignmentModule } from './assignment/assignment.module';
 import { JobModule } from './job/job.module';
 import { LevelModule } from './level/level.module';
 import { StatusClassModule } from './statusClass/statusClass.module';
+import { ExternalResourceModule } from './externalResource/externalResource.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { StatusClassModule } from './statusClass/statusClass.module';
     JobModule,
     LevelModule,
     StatusClassModule,
+    ExternalResourceModule,
   ],
   providers: [
     {

@@ -32,7 +32,7 @@ export class QuizController {
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('topic/:id')
-  async getAllQuiz(@Param('id', ParseIntPipe) topicId: number) {
+  async getQuizByTopicId(@Param('id', ParseIntPipe) topicId: number) {
     return await this.quizService.getQuizByTopicId(topicId);
   }
 
@@ -105,5 +105,27 @@ export class QuizController {
     @Body() dto: AttemptQuizDto,
   ) {
     return await this.quizService.attemptQuiz(user, quizId, dto);
+  }
+
+  // Get All Grades of Quiz (Lấy ra danh sách điểm của bài thi trắc nghiệm)
+  @Roles('TRAINER')
+  @UseGuards(RolesGuard)
+  // @Public()
+  @HttpCode(HttpStatus.OK)
+  @Get('getGradesQuiz/:quizId')
+  async getGradesOfQuiz(@Param('quizId', ParseIntPipe) quizId: number) {
+    return await this.quizService.getGradesOfQuiz(quizId);
+  }
+
+  // Get the Review of QuizAttempt (Xem lại bài làm)
+  @Roles('TRAINER', 'TRAINEE')
+  @UseGuards(RolesGuard)
+  // @Public()
+  @HttpCode(HttpStatus.OK)
+  @Get('reviewAttempt/:quizAttemptId')
+  async reviewQuizAttempt(
+    @Param('quizAttemptId', ParseIntPipe) quizAttemptId: number,
+  ) {
+    return await this.quizService.reviewQuizAttempt(quizAttemptId);
   }
 }

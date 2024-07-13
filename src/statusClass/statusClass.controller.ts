@@ -40,7 +40,7 @@ export class StatusClassController {
   }
 
   //Get StatusClass By Id
-  @Roles('UPPER')
+  @Roles('ADMIN', 'UPPER')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
@@ -49,7 +49,7 @@ export class StatusClassController {
   }
 
   //Create StatusClass
-  @Roles('UPPER')
+  @Roles('ADMIN')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post('createStatusClass')
@@ -58,7 +58,7 @@ export class StatusClassController {
   }
 
   //Edit StatusClass by Id
-  @Roles('UPPER')
+  @Roles('ADMIN')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Patch('editStatusClass/:id')
@@ -72,12 +72,14 @@ export class StatusClassController {
     );
   }
 
-  //Delete Department by Id
-  @Roles('UPPER')
+  //Delete StatusClass by Id
+  @Roles('ADMIN')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
-  @Delete('deleteDepartment/:id')
-  async deleteDepartmentById(@Param('id', ParseIntPipe) statusClassId: number) {
+  @Delete('deleteStatusClass/:id')
+  async deleteStatusClassById(
+    @Param('id', ParseIntPipe) statusClassId: number,
+  ) {
     return await this.statusClassService.deleteStatusClassById(statusClassId);
   }
 }

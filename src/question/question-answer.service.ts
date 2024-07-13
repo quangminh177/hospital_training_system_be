@@ -103,7 +103,9 @@ export class QuestionService {
         },
       });
 
-      return newQuestion;
+      const question = this.getQuestionById(newQuestion.id);
+
+      return question;
     } catch (error) {
       throw error;
     }

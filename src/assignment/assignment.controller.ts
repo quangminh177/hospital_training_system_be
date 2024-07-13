@@ -9,7 +9,6 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  Res,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -20,7 +19,9 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
 import { AssignmentService } from './assignment.service';
 import { CreateAssignmentDto, EditAssignmentDto } from './dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Response } from 'express';
+import { GetCurrentUser } from 'src/common/decorators';
+import { Public } from 'src/common/decorators';
+import { User } from '@prisma/client';
 
 @Controller('assignment')
 @ApiTags('assignment')
@@ -43,9 +44,9 @@ export class AssignmentController {
   @Get(':id')
   async getAssignmentById(
     @Param('id', ParseIntPipe) assignmentId: number,
-    @Res() res: Response,
+    // @Res() res: Response,
   ) {
-    return await this.assignmentService.getAssignmentById(assignmentId, res);
+    return await this.assignmentService.getAssignmentById(assignmentId /*res*/);
   }
 
   //Create Assignment
@@ -80,5 +81,63 @@ export class AssignmentController {
   @Delete('deleteAssignment/:id')
   async deleteAssignmentById(@Param('id', ParseIntPipe) assignmentId: number) {
     return await this.assignmentService.deleteAssignmentById(assignmentId);
+  }
+
+  //Submit Assignment by assignmentId (Nộp bài tập tự luận)
+  @Roles('TRAINEE')
+  @UseGuards(RolesGuard)
+  @HttpCode(HttpStatus.CREATED)
+  @Post('submitAssignment/:assignmentId')
+  @UseInterceptors(FileInterceptor('submissionFile'))
+  async submitAssignmentById(
+    @Param('assignmentId', ParseIntPipe) assignmentId: number,
+    @GetCurrentUser() user: User,
+    @UploadedFile() submissionFile: Express.Multer.File,
+  ) {
+    return await this.assignmentService.submitAssignmentById(
+      assignmentId,
+      user,
+      submissionFile,
+    );
+  }
+
+  //Get Submission by SubmissionId (Xem chi tiết bài làm)
+  // @Roles('TRAINER')
+  // @UseGuards(RolesGuard)
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @Get('submission/:submissionId')
+  async getSubmissionById(
+    @Param('submissionId', ParseIntPipe) submissionId: number,
+    // @Res() res: Response,
+  ) {
+    return await this.assignmentService.getSubmissionById(submissionId);
+  }
+
+  // Grade the assignment (Chấm điểm bài làm)
+  @Roles('TRAINER')
+  @UseGuards(RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @Patch('gradeSubmission/:id')
+  async gradeAssignmentSubmissionById(
+    @Param('id', ParseIntPipe) submissionId: number,
+    @Body() grade: number,
+  ) {
+    return await this.assignmentService.gradeAssignmentSubmissionById(
+      submissionId,
+      grade,
+    );
+  }
+
+  // Get All Grades of Assignment (Lấy ra danh sách điểm/ danh sách bài làm)
+  @Roles('TRAINER')
+  @UseGuards(RolesGuard)
+  // @Public()
+  @HttpCode(HttpStatus.OK)
+  @Get('getGradesAssignment/:assignmentId')
+  async getGradesOfAssignment(
+    @Param('assignmentId', ParseIntPipe) assignmentId: number,
+  ) {
+    return await this.assignmentService.getGradesOfAssignment(assignmentId);
   }
 }

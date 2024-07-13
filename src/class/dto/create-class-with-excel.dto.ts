@@ -1,14 +1,15 @@
-import { Schedule } from '@prisma/client';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
+  ArrayMinSize,
   IsArray,
   IsBoolean,
   IsDate,
   IsNotEmpty,
   IsNumber,
-  IsOptional,
   IsString,
+  ValidateNested,
 } from 'class-validator';
+import { AddSchedule } from './add-schedules.dto';
 
 export class CreateClassWithExcelDto {
   @IsNumber()
@@ -51,6 +52,8 @@ export class CreateClassWithExcelDto {
 
   @IsArray()
   @IsNotEmpty()
-  @IsOptional()
-  schedules: Array<Schedule>;
+  @ArrayMinSize(1)
+  @ValidateNested({ each: true })
+  @Type(() => AddSchedule)
+  schedules: AddSchedule[];
 }
