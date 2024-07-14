@@ -1,12 +1,15 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateAssignmentDto, EditAssignmentDto } from './dto';
-// import { Response } from 'express';
 import { User } from '@prisma/client';
+import { UploadFileServiceAbstract } from 'src/file/upload-file.abstract.service';
 
 @Injectable()
 export class AssignmentService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly upload_file_service: UploadFileServiceAbstract,
+  ) {}
 
   //Get Assignments by TopicId
   async getAssignmentsByTopicId(topicId: number) {
@@ -109,20 +112,24 @@ export class AssignmentService {
         },
       });
 
-      const { originalname, mimetype, buffer } = assignmentFile;
-      console.log(originalname);
+      const { originalname } = assignmentFile;
 
-      if (!originalname || !mimetype || !buffer) {
+      if (!originalname) {
         throw new Error('Invalid file data');
       }
+
+      const uploaded_result =
+        await this.upload_file_service.uploadFileToPublicBucket(
+          'assignment-attachment',
+          { file: assignmentFile, file_name: originalname },
+        );
 
       //Create Attachment
       const assignmentAttachment = await this.prisma.attachment.create({
         data: {
           assignmentId: newAssignment.id,
           name: originalname,
-          mimeType: mimetype,
-          data: buffer,
+          url: uploaded_result,
         },
       });
 
@@ -183,18 +190,23 @@ export class AssignmentService {
       },
     });
 
-    const { originalname, mimetype, buffer } = submissionFile;
+    const { originalname } = submissionFile;
 
-    if (!originalname || !mimetype || !buffer) {
+    if (!originalname) {
       throw new Error('Invalid file data');
     }
+
+    const uploaded_result =
+      await this.upload_file_service.uploadFileToPublicBucket(
+        'assignment-attachment',
+        { file: submissionFile, file_name: originalname },
+      );
 
     const attachment = await this.prisma.attachment.create({
       data: {
         assignmentSubmissionId: assignmentSubmission.id,
         name: originalname,
-        mimeType: mimetype,
-        data: buffer,
+        url: uploaded_result,
       },
     });
 

@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateExternalResourceDto, EditExternalResourceDto } from './dto';
+import { UploadFileServiceAbstract } from 'src/file/upload-file.abstract.service';
 
 @Injectable()
 export class ExternalResourceService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly upload_file_service: UploadFileServiceAbstract,
+  ) {}
 
   //Get ExternalResource by TopicId
   async getExternalResourceByTopicId(topicId: number) {
@@ -53,20 +57,24 @@ export class ExternalResourceService {
         },
       });
 
-      const { originalname, mimetype, buffer } = file;
-      console.log(originalname);
+      const { originalname } = file;
 
-      if (!originalname || !mimetype || !buffer) {
+      if (!originalname) {
         throw new Error('Invalid file data');
       }
+
+      const uploaded_result =
+        await this.upload_file_service.uploadFileToPublicBucket(
+          'assignment-attachment',
+          { file: file, file_name: originalname },
+        );
 
       //Create Attachment
       const attachment = await this.prisma.attachment.create({
         data: {
           externalResourceId: newExternalResource.id,
           name: originalname,
-          mimeType: mimetype,
-          data: buffer,
+          url: uploaded_result,
         },
       });
 

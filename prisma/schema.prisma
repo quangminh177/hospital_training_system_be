@@ -268,8 +268,6 @@ model Attachment {
   externalResourceId     Int?
   name                   String
   description            String?
-  mimeType               String
-  data                   Bytes
   url                    String?
   assignment             Assignment?           @relation(fields: [assignmentId], references: [id])
   assignmentSubmission   AssignmentSubmission? @relation(fields: [assignmentSubmissionId], references: [id])

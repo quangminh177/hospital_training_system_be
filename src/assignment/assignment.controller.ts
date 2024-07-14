@@ -20,7 +20,7 @@ import { AssignmentService } from './assignment.service';
 import { CreateAssignmentDto, EditAssignmentDto } from './dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { GetCurrentUser } from 'src/common/decorators';
-import { Public } from 'src/common/decorators';
+// import { Public } from 'src/common/decorators';
 import { User } from '@prisma/client';
 
 @Controller('assignment')
@@ -52,6 +52,7 @@ export class AssignmentController {
   //Create Assignment
   @Roles('TRAINER')
   @UseGuards(RolesGuard)
+  // @Public()
   @HttpCode(HttpStatus.CREATED)
   @Post('createAssignment')
   @UseInterceptors(FileInterceptor('assignmentFile'))
@@ -102,9 +103,9 @@ export class AssignmentController {
   }
 
   //Get Submission by SubmissionId (Xem chi tiết bài làm)
-  // @Roles('TRAINER')
-  // @UseGuards(RolesGuard)
-  @Public()
+  @Roles('TRAINER')
+  @UseGuards(RolesGuard)
+  // @Public()
   @HttpCode(HttpStatus.OK)
   @Get('submission/:submissionId')
   async getSubmissionById(
@@ -118,9 +119,9 @@ export class AssignmentController {
   @Roles('TRAINER')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
-  @Patch('gradeSubmission/:id')
+  @Patch('gradeSubmission/:submissionId')
   async gradeAssignmentSubmissionById(
-    @Param('id', ParseIntPipe) submissionId: number,
+    @Param('submissionId', ParseIntPipe) submissionId: number,
     @Body() grade: number,
   ) {
     return await this.assignmentService.gradeAssignmentSubmissionById(
